@@ -14,9 +14,18 @@ bosch-ai-framework/
 │   │   ├── __init__.py         # chat(), stream(), get_router()
 │   │   ├── client.py           # 稳定接口，业务唯一入口
 │   │   └── router.py           # LiteLLM Router，换 provider 只改这个
-│   ├── tools.py                # ToolRegistry + AgentLoop → 下一步拆 agent/
-│   ├── tasks.py                # 异步任务管理 → 下一步接口化
-│   ├── auth.py                 # 鉴权
+│   ├── agent/                  # Agent 框架（P1 ✅）
+│   │   ├── __init__.py
+│   │   ├── tool.py             # Tool, ToolRegistry
+│   │   └── loop.py             # AgentLoop, AgentLoopConfig
+│   ├── tools.py                # → re-export from infra.agent（向后兼容）
+│   ├── skill/                  # Skill 框架（P2 ✅）
+│   │   └── __init__.py         # Skill, SkillRegistry
+│   ├── task/                    # 任务管理（P3 ✅）
+│   │   ├── __init__.py         # create_task, get_task, set_phase
+│   │   ├── types.py            # TaskStatus, TaskID, TaskResult
+│   │   └── backend.py          # TaskBackend(ABC) + MemoryTaskBackend
+│   ├── tasks.py                # → re-export from infra.task（向后兼容）
 │   ├── settings.py             # 配置加载
 │   ├── logs.py                 # JSON 日志
 │   └── utils.py
@@ -97,9 +106,9 @@ bosch-ai-framework/
 | 优先级 | 任务 | 状态 |
 |--------|------|------|
 | **P0** | `llm.py` → `llm/` 子包（client / router 分离，屏蔽 LiteLLM） | ✅ 完成 |
-| **P1** | `tools.py` → `agent/` + `tool/`（AgentLoop / ToolRegistry 独立子包） | 待开始 |
-| **P2** | Skills 提升到 `infra/skill/`（`skill.execute()` 通用接口） | 待开始 |
-| **P3** | `tasks.py` → `task/`（`TaskBackend(ABC)` + `MemoryTaskBackend`） | 待开始 |
+| **P1** | `tools.py` → `agent/` + `tool/`（AgentLoop / ToolRegistry 独立子包） | ✅ 完成 |
+| **P2** | Skills 提升到 `infra/skill/`（`skill.execute()` 通用接口） | ✅ 框架就绪 |
+| **P3** | `tasks.py` → `task/`（`TaskBackend(ABC)` + `MemoryTaskBackend`） | ✅ 完成 |
 | **P4** | AI Gateway（Token/Cost/Rate Limit/审计统一） | 远期 |
 
 ### P0 完成内容
@@ -126,9 +135,32 @@ await chat(messages=[...])
 # LiteLLM → OpenAI SDK → SAP AI Core 换底层只改 router.py，业务无感知。
 ```
 
----
+### P1 完成内容
 
-## 验证清单
+```
+infra/tools.py (442 行)  →  infra/agent/
+├── __init__.py    # 公共 API: ToolRegistry, AgentLoop, AgentLoopConfig
+├── tool.py        # Tool, ToolRegistry — 工具注册与执行
+└── loop.py        # AgentLoop, AgentLoopConfig — 流式/非流式循环
+infra/tools.py     # → re-export from infra.agent（向后兼容）
+```
+
+向后兼容：`from infra.tools import ToolRegistry, AgentLoop` 代码零改动。
+新代码直接：`from infra.agent import ToolRegistry, AgentLoop`。
+
+### P2 完成内容
+
+```
+infra/skill/
+└── __init__.py    # Skill, SkillRegistry — 声明式技能注册与执行
+```
+
+- `Skill` dataclass — name + handler + description + params + category + tags + metadata
+- `SkillRegistry` — register / execute / list_skills，支持参数覆盖
+- `registry.execute("skill_name", input, **overrides)` 统一调度接口
+- 输入名自动 normalise（kebab-case / snake_case / 空格 → 统一）
+
+> forecast skills/presets 尚未迁到 infra.skill — 框架就绪，业务 refactor 可独立进行。
 
 ```
 [x] uv sync --all-packages（136 packages）

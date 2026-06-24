@@ -25,14 +25,7 @@ deploy() {
     echo "  Deploying: $name"
     echo "========================================"
     cd "$BASE_DIR"
-
-    # CF python buildpack 找根目录 requirements.txt — 复制当前 agent 的上去
-    cp "$name/requirements.txt" ./requirements.txt
-
-    # manifest 里 path: .. 推送整个 monorepo，command: cd <agent> && gunicorn ...
     cf push -f "$name/manifest.yml" --strategy rolling
-
-    rm -f ./requirements.txt
     echo "  $name deployed."
 }
 

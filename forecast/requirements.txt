@@ -1,4 +1,0 @@
-# Forecast Agent — CF deployment requirements
-# CF buildpack runs `pip install -r requirements.txt` from monorepo root
--e ./infra
--e ./forecast

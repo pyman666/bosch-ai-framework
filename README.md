@@ -6,7 +6,7 @@ Monorepo — 5 个 Python 包，每个独立部署为一个 Cloud Foundry App。
 
 ```
 bosch-ai-framework/          ← 一个 Git 仓库（monorepo）
-├── infra/                   ← 共享基础设施包（uv workspace member）
+├── infra/                   ← 共享框架（uv workspace member）
 ├── document/                ← 文档解析 Agent（独立 CF App）
 ├── rag/                     ← RAG 知识库 Agent（独立 CF App）
 ├── forecast/                ← 预测 Agent（独立 CF App）
@@ -14,13 +14,13 @@ bosch-ai-framework/          ← 一个 Git 仓库（monorepo）
 └── deployment/cf/           ← 统一部署脚本
 ```
 
-- **infra** 是公共依赖，4 个 agent 都 `from infra.llm import ...`
+- **infra** 是 AI 框架，4 个 agent 都 `from infra.llm import chat` / `from infra.agent import ToolRegistry`
 - **uv workspace** 管理所有包的依赖，一条命令安装全部
 - **每个 agent 一个 CF App**，独立扩缩容、独立绑定服务、互不影响
 
 ## 开发环境
 
-### 1. 安装 uv（如果没有）
+### 1. 安装 uv
 
 ```powershell
 powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
@@ -33,168 +33,130 @@ cd bosch-ai-framework
 uv sync --all-packages
 ```
 
-`uv sync --all-packages` 会：
-- 安装根 `pyproject.toml` 里 `[tool.uv.workspace] members` 的全部 5 个包
-- 安装每个包的 `dependencies`（litellm, fastapi, pandas, torch 等）
-- 自动处理 workspace 内依赖（`document` 依赖 `infra` — uv 先装 infra）
+装完 5 个 workspace member + 所有外部依赖，`from infra.llm import chat` 在任意 agent 里直接可用。
 
-装完之后，`from infra.llm import ...` 就能在任意 agent 里直接用了。
-
-### 3. 本地启动某个 Agent
+### 3. 本地启动
 
 ```bash
-# document
-cd document && uv run python run.py                   # http://127.0.0.1:8080
-
-# rag
-cd rag && uv run python run.py                        # http://127.0.0.1:8080
-
-# forecast
-cd forecast && uv run uvicorn forecast.main:app --reload  # http://127.0.0.1:8000
-
-# analytics
-cd analytics && uv run uvicorn analytics.main:app --reload  # http://127.0.0.1:8000
+cd document && uv run python run.py                     # http://127.0.0.1:8080
+cd rag && uv run python run.py                          # http://127.0.0.1:8080
+cd forecast && uv run uvicorn forecast.main:app --reload   # http://127.0.0.1:8000
+cd analytics && uv run uvicorn analytics.main:app --reload # http://127.0.0.1:8000
 ```
 
-> 同时启动多个 agent 时注意端口冲突，改 `--port` 就行。
+> 同时启动注意端口冲突，加 `--port` 换端口。
 
-### 4. 只改 infra 时
+### 4. 改 infra 即刻生效
 
-改完 `infra/llm.py` 不用重新安装 — `uv sync --all-packages` 是以 editable 模式装的，改完即生效，所有 agent 立刻看到新代码。
-
-## 依赖关系
-
-```
-document ──┐
-rag ────────┼──→ infra    （workspace 内依赖，uv 自动解析）
-forecast ──┤
-analytics ─┘
-```
-
-每个 agent 的 `pyproject.toml` 里写：
-
-```toml
-dependencies = [
-    "infra",              # workspace 内依赖
-    "fastapi>=0.104.0",   # 外部依赖
-    ...
-]
-```
-
-uv 看到 `"infra"` 会优先匹配 workspace member，不需要 publish 到 PyPI。
+`uv sync` 是 editable 安装，改 `infra/llm/client.py` 不用重新装，所有 agent 立刻看到。
 
 ## 目录说明
 
 ```
 bosch-ai-framework/
-├── pyproject.toml              # 根 workspace 配置
-├── infra/                      # 公共基础设施（来自 ainfra）
-│   ├── __init__.py
-│   ├── llm.py                  # LiteLLM 网关 / Router
+├── pyproject.toml              # uv workspace 根配置
+├── requirements.txt            # CF buildpack 用 (pip install -e)
+├── infra/                      # 公共 AI 框架
+│   ├── llm/                    # LLM 抽象层（屏蔽 LiteLLM）
+│   │   ├── client.py           # chat(), stream() — 稳定接口
+│   │   └── router.py           # LiteLLM Router，换 provider 只改这个
+│   ├── agent/                  # Agent 框架
+│   │   ├── tool.py             # Tool, ToolRegistry
+│   │   └── loop.py             # AgentLoop (流式/非流式)
+│   ├── skill/                  # Skill 框架
+│   │   └── __init__.py         # Skill, SkillRegistry
+│   ├── task/                   # 任务管理
+│   │   ├── types.py            # TaskStatus, TaskID, TaskResult
+│   │   └── backend.py          # TaskBackend(ABC) + MemoryTaskBackend
 │   ├── auth.py                 # HTTP Basic + XSUAA 鉴权
-│   ├── settings.py             # YAML + env 配置加载
-│   ├── tasks.py                # 异步任务管理
-│   ├── tools.py                # 通用工具函数
+│   ├── settings.py             # YAML + env 配置
 │   ├── logs.py                 # JSON 日志
 │   └── utils.py
 ├── document/                   # 文档解析（原 apdfi/idoc）
-│   ├── main.py                 # FastAPI app 入口
-│   ├── excel/                  # Excel 解析引擎 + 客户配置
-│   ├── pdf/                    # PDF 字段抽取 + VLM pipeline
-│   ├── chat/                   # Chat FSM 多轮对话状态机
-│   └── manifest.yml            # CF 部署描述
+│   ├── main.py                 # FastAPI 入口
+│   ├── excel/                  # Excel 引擎 + 客户配置
+│   ├── pdf/                    # PDF 字段抽取 + VLM
+│   ├── chat/                   # Chat FSM 状态机
+│   └── manifest.yml
 ├── rag/                        # RAG 知识库（原 bapee）
 │   ├── main.py
-│   ├── rag/                    # 通用 Hybrid RAG 引擎
+│   ├── rag/                    # Hybrid RAG 引擎
 │   ├── chatbot/                # BPAE 业务管道
-│   ├── core/                   # Auth / LLM / Rate Limit / BTP
+│   ├── core/                   # Auth / LLM / BTP
 │   └── manifest.yml
 ├── forecast/                   # 预测 / Function Generator（原 fcst）
 │   ├── main.py
-│   ├── core/                   # Agent 循环 / 执行器 / 编排器
-│   ├── skills/                 # 技能预设（统计 / 业务）
+│   ├── core/                   # Agent 编排器
+│   ├── skills/                 # 统计/业务预设
 │   ├── routes/                 # API 路由
 │   └── manifest.yml
 ├── analytics/                  # AI BI / NL2SQL（原 abi）
 │   ├── main.py
-│   ├── api/                    # Chat / Health 路由
-│   ├── core/                   # Agent / Session / Chart
+│   ├── api/                    # Chat / Health
+│   ├── core/                   # Agent / Session
 │   └── manifest.yml
-└── deployment/
-    └── cf/
-        └── deploy.sh           # 一键部署全部或单个 agent
+└── deployment/cf/
+    └── deploy.sh
+```
+
+## 依赖关系
+
+```
+document ──┐
+rag ────────┼──→ infra    （workspace 内依赖）
+forecast ──┤
+analytics ─┘
+```
+
+每个 agent 的 `pyproject.toml`：
+
+```toml
+dependencies = [
+    "infra",              # workspace 内依赖，uv 自动解析
+    "fastapi>=0.104.0",
+    ...
+]
+
+[tool.uv.sources]
+infra = { workspace = true }
 ```
 
 ## 部署到 Cloud Foundry
 
-### 前置条件
+### 前置
 
 ```bash
-# 1. 登录 CF
 cf login -a https://api.cf.eu10.hana.ondemand.com -o <org> -s <space>
-
-# 2. 创建必要的 service instances（一次性）
-#    XSUAA / Redis / AI Core 等，按需创建
 ```
 
-### 部署单个 Agent
+### 部署
 
 ```bash
-cd document
-cf push
+./deployment/cf/deploy.sh rag          # 只部署 rag
+./deployment/cf/deploy.sh all          # 部署全部
 ```
 
-`cf push` 自动读取当前目录的 `manifest.yml`。每个 agent 的 manifest 各自描述：
-- app name（`document` / `rag` / `forecast` / `analytics`）
-- 内存 / 磁盘配额
-- gunicorn 启动命令
-- health check endpoint
-- 绑定的 service instances
+**原理：** manifest `path: ..` 推整个 monorepo，CF buildpack 用根 `requirements.txt` 一把装完所有 workspace member，然后 `cd <agent> && gunicorn` 启动指定 agent。5 个 agent 是 5 个独立的 CF App。
 
-部署之后 5 个 agent 是 5 个独立的 CF App，各自有独立的 URL、独立的 scaling、独立的 service binding。一个挂了不影响其他。
-
-### 部署全部
+### 更新
 
 ```bash
-./deployment/cf/deploy.sh all
+./deployment/cf/deploy.sh rag          # 只重启 rag，其他不受影响
 ```
 
-### 更新某个 Agent
+### 常用
 
 ```bash
-cd rag
-cf push --strategy rolling    # 零停机滚动更新
-```
-
-### 查看状态
-
-```bash
-cf apps                         # 所有 agent 的运行状态
-cf logs rag --recent            # 查看 rag 最近日志
-cf restart document             # 重启 document
-```
-
-### 扩缩容
-
-```bash
-cf scale forecast -i 3          # forecast 扩到 3 个实例
-cf scale analytics -m 2G        # analytics 加内存
+cf apps                                # 所有 agent 状态
+cf logs rag --recent                   # 日志
+cf scale forecast -i 3                 # 扩实例
 ```
 
 ## 常用操作
 
 ```bash
-# 加一个新依赖
-cd document
-uv add <package>
-
-# 所有 agent 一起跑测试
-uv run pytest
-
-# 代码格式化
-uv run ruff check .
-uv run ruff format .
-
-# 查看 workspace 依赖树
-uv tree
+uv add <package>                       # 加依赖
+uv run pytest                          # 跑测试
+uv run ruff check . && uv run ruff format .   # 格式化
+uv tree                                # 依赖树
 ```
