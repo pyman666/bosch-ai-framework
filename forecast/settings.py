@@ -46,8 +46,8 @@ def _expand_model_list(providers: list[dict[str, Any]]) -> list[dict[str, Any]]:
 MODEL_LIST: list[dict[str, Any]] = _expand_model_list(_cfg["providers"])
 
 
-_VALID_AUTH_MODES = ("basic", "xsuaa", "both")
-_auth_mode: str = os.environ.get("AUTH_MODE", "basic").strip().lower()
+_VALID_AUTH_MODES = ("none", "basic", "xsuaa", "both")
+_auth_mode: str = os.environ.get("AUTH_MODE", "none").strip().lower()
 if _auth_mode not in _VALID_AUTH_MODES:
     raise RuntimeError(
         f"环境变量 AUTH_MODE='{_auth_mode}' 非法, 只接受: {_VALID_AUTH_MODES}."

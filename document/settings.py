@@ -12,7 +12,7 @@ load_dotenv()
 
 _VALID_AUTH_MODES = ("none", "basic", "xsuaa", "both")
 
-_auth_mode: str = os.environ.get("AUTH_MODE", "basic").strip().lower()
+_auth_mode: str = os.environ.get("AUTH_MODE", "none").strip().lower()
 if _auth_mode not in _VALID_AUTH_MODES:
     raise RuntimeError(
         f"环境变量 AUTH_MODE='{_auth_mode}' 非法, 只接受: {_VALID_AUTH_MODES}."
