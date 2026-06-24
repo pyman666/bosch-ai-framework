@@ -94,7 +94,6 @@ def test_sandbox_helpers_are_injected():
 def test_prep_demand_returns_sorted_days():
     """prep_demand 应该解析、排序并返回 [{date, qty}]，无数据返回 []。"""
     from forecast.core.executor import prepare_python_skill
-    from datetime import date
 
     code = """
 def forecast(record):

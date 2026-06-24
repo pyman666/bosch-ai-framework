@@ -34,4 +34,3 @@ class GeelyCdRow(BaseModel):
     data: list[GeelyCdData] = Field(..., description="按日期排列的上线计划序列")
 
 
-__all__ = ["GeelyCdData", "GeelyCdRow"]

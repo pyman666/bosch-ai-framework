@@ -21,7 +21,7 @@ def client(tmp_path, monkeypatch):
     from sqlalchemy import create_engine, event
     from sqlalchemy.orm import sessionmaker
     from forecast.database import Base, get_db
-    import forecast.db_models  # 确保 ORM 模型注册到 Base.metadata
+    import forecast.db_models  # noqa: F401 — 确保 ORM 模型注册到 Base.metadata
 
     db_path = tmp_path / "test.db"
     db_url = f"sqlite:///{db_path}"
@@ -92,10 +92,13 @@ def client(tmp_path, monkeypatch):
 @pytest.fixture
 def db_session(client, tmp_path):
     """直接访问数据库会话（用于设置测试数据）。"""
+    from sqlalchemy import create_engine as _create_engine
+    from sqlalchemy.orm import sessionmaker as _sessionmaker
+
     db_path = tmp_path / "test.db"
     db_url = f"sqlite:///{db_path}"
-    engine = create_engine(db_url, connect_args={"check_same_thread": False})
-    SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
+    engine = _create_engine(db_url, connect_args={"check_same_thread": False})
+    SessionLocal = _sessionmaker(bind=engine, autoflush=False, autocommit=False)
     db = SessionLocal()
     yield db
     db.close()
@@ -163,7 +166,7 @@ class TestChatRoutes:
 
     def test_send_message_non_stream(self, client):
         """非流式发送消息（mock LLM）。"""
-        from unittest.mock import patch, AsyncMock
+        from unittest.mock import patch
 
         create_resp = client.post("/api/v1/chat/sessions", json={"title": "Send Test"})
         session_id = create_resp.json()["id"]

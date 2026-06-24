@@ -20,4 +20,3 @@ class GeelyHzw3Row(BaseModel):
     data: list[GeelyHzw3Data] = Field(..., description="按日期排列的缺口序列")
 
 
-__all__ = ["GeelyHzw3Data", "GeelyHzw3Row"]

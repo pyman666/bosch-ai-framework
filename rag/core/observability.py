@@ -39,7 +39,6 @@ import contextvars
 import json
 import logging
 import sys
-import time
 import uuid
 from datetime import datetime, timezone
 from typing import Any, Awaitable, Callable

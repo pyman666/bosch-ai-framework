@@ -64,4 +64,3 @@ GEELY_YY_CONFIG = WideExcelConfig(
 support(GEELY_YY_CONFIG)
 
 
-__all__ = ["GEELY_YY_CONFIG", "GeelyYyData", "GeelyYyRow"]

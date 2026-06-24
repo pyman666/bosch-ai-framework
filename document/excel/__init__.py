@@ -22,4 +22,3 @@ endpoint 的 APIRouter, 不需要触碰内部子模块.
 from .routes import router
 
 
-__all__ = ["router"]

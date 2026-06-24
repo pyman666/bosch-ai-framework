@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-import litellm
+import litellm  # noqa: E402 — load_dotenv() must run before litellm import
 litellm.drop_params = True
 
 log = logging.getLogger(__name__)

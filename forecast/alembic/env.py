@@ -21,8 +21,8 @@ if not db_path:
 config.set_main_option("sqlalchemy.url", f"sqlite:///{db_path}")
 
 # 导入 Base 和所有 ORM 模型
-from forecast.database import Base
-from fcst import db_models  # noqa: F401
+from forecast.database import Base  # noqa: E402
+from fcst import db_models  # noqa: E402, F401
 
 target_metadata = Base.metadata
 

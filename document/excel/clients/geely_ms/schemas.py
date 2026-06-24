@@ -23,4 +23,3 @@ class GeelyMsRow(BaseModel):
     data: list[GeelyMsData] = Field(..., description="按日期排列的需求合计序列")
 
 
-__all__ = ["GeelyMsData", "GeelyMsRow"]

@@ -617,8 +617,6 @@ def fn_jitcall_priority(args: list, rec: dict) -> list[float]:
             pgi_total = float(pgi_arg)
     else:
         pgi_total = sum(_extract_qty_series(rec.get("pgi", [])))
-    lt = int(args[4]) if len(args) > 4 else int(rec.get("transportation_lt", rec.get("transportationLT", 3)))
-
     # 简化版：按 daily_raw 长度构建输出
     n = len(daily_raw) if isinstance(daily_raw, list) else 7
     if not isinstance(daily_raw, list) or len(daily_raw) == 0:
@@ -668,8 +666,6 @@ def fn_monthly_daily_blend(args: list, rec: dict) -> list[float]:
     monthly = float(args[1]) if len(args) > 1 else float(rec.get("monthly_forecast", 0))
     begin_inv = float(args[2]) if len(args) > 2 else float(rec.get("beginningInventory", 0))
     ins_raw = args[3] if len(args) > 3 else _extract_qty_series(rec.get("ins", rec.get("pgi", [])))
-    lt = int(args[4]) if len(args) > 4 else int(rec.get("transportation_lt", rec.get("transportationLT", 3)))
-
     if not isinstance(daily_raw, list) or len(daily_raw) == 0:
         return []
 
@@ -740,7 +736,6 @@ def fn_net_demand(args: list, rec: dict) -> list[float]:
     """
     bal = _ensure_list(args[0])
     result = []
-    prev = 0.0
     for b in bal:
         if b < 0:
             net = -b

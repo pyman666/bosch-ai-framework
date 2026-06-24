@@ -27,4 +27,3 @@ class GeelyYyRow(BaseModel):
     data: list[GeelyYyData] = Field(..., description="按 (车型, 日期) 拼合的需求序列")
 
 
-__all__ = ["GeelyYyData", "GeelyYyRow"]

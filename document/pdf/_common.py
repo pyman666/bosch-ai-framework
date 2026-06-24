@@ -134,13 +134,6 @@ class PdfExtractionAck(BaseModel):
     )
 
 
-__all__ = (
-    "pdf_params",
-    "SchemaFieldPreview",
-    "dump_schema_fields",
-    "PdfExtractionAck",
-    "register_pdf_routes",
-)
 
 
 def register_pdf_routes(

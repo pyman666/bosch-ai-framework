@@ -230,8 +230,3 @@ def xpeng_zq_intent(file_name: str) -> XpengZqIntent:
     )
 
 
-__all__ = (
-    "XpengZqExecutor",
-    "xpeng_zq_intro",
-    "xpeng_zq_intent",
-)

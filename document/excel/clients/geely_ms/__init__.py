@@ -58,4 +58,3 @@ GEELY_MS_CONFIG = WideExcelConfig(
 support(GEELY_MS_CONFIG)
 
 
-__all__ = ["GEELY_MS_CONFIG", "GeelyMsData", "GeelyMsRow"]

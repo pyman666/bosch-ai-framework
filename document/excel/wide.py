@@ -66,7 +66,7 @@ from fastapi import APIRouter, BackgroundTasks, Depends, Form, HTTPException
 from litellm.exceptions import APIError
 from pydantic import BaseModel, Field
 
-from ._common import excel_upload, _is_nullish, _clean_cell
+from ._common import excel_upload, _is_nullish
 from .core import ExcelConfig, PyExcel, PyXL
 from ..llm import aclient
 from ..chat import ChatPlan
@@ -914,8 +914,8 @@ def _build_dynamic_strategy(config: WideExcelConfig) -> str:
             f"复合 key (例: `CX11 A3 L/2025-12-30`), 业务方拿到后按 `/` split 即可分别取各维"
         )
     return (
-        f"动态列单层 header, var 字段直接取该列表头 cell (一般是 ISO 日期 `YYYY-MM-DD` "
-        f"格式; datetime cell 时间全 0 自动退化成纯日期)"
+        "动态列单层 header, var 字段直接取该列表头 cell (一般是 ISO 日期 `YYYY-MM-DD` "
+        "格式; datetime cell 时间全 0 自动退化成纯日期)"
     )
 
 
@@ -1159,15 +1159,3 @@ def register_wide_excel(
         return await get_task(task_id, phase)
 
 
-__all__ = [
-    "WideExcelConfig",
-    "WideExcelResp",
-    "WideExcelTaskAck",
-    "WideExcelMappingPreview",
-    "ColumnLocation",
-    "WideExcelDynamicLocation",
-    "WideExcelRepairPlan",
-    "parse_wide_excel",
-    "wide_excel_task",
-    "register_wide_excel",
-]

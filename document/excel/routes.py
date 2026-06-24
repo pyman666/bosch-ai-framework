@@ -4,6 +4,8 @@
 加新客户只需在 ``clients/<name>/__init__.py`` 里 ``support(config)`` 声明, 本文件
 通过 pkgutil 自动发现子包并装载注册表.
 """
+import importlib
+import pkgutil
 from dataclasses import replace as _dc_replace
 
 from fastapi import APIRouter, BackgroundTasks, Depends, Form, HTTPException, Query
@@ -15,6 +17,8 @@ from ._common import excel_upload
 from ..settings import DEFAULT_MODEL
 from ..tasks import TaskResult, create_task, get_task
 from ..chat import ops as chat_ops
+from . import clients as _clients_pkg
+from .clients import all_labels, get_config
 
 
 router = APIRouter()
@@ -25,16 +29,9 @@ _TASK_PHASE: dict[str, str] = {}
 
 # ---------------------------------------------------------------------------
 # 客户端点注册: pkgutil 自动发现 clients/ 下所有子包, 由统一参数化路由派发
-import importlib
-import pkgutil
-
-from . import clients as _clients_pkg
-
 for _importer, _pkg_name, _ispkg in pkgutil.iter_modules(_clients_pkg.__path__):
     if not _pkg_name.startswith("_") and _ispkg:
         importlib.import_module(f".clients.{_pkg_name}", package=__package__)
-
-from .clients import all_labels, get_config  # noqa: E402
 
 
 def _resolve_client(client: str):

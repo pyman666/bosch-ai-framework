@@ -37,4 +37,3 @@ CONFIG = ComplexExcelConfig(
 support(CONFIG)
 
 
-__all__ = ("CONFIG",)

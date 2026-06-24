@@ -67,4 +67,3 @@ GEELY_CD_CONFIG = WideExcelConfig(
 support(GEELY_CD_CONFIG)
 
 
-__all__ = ["GEELY_CD_CONFIG", "GeelyCdData", "GeelyCdRow"]

@@ -569,7 +569,7 @@ def register_complex_excel(
 
     @router.post(
         f"{path_prefix}/chat/{{chat_id}}/start",
-        summary=f"[Chat] 业务方确认预设/答完澄清, 触发 LLM planning",
+        summary="[Chat] 业务方确认预设/答完澄清, 触发 LLM planning",
         name=f"{label}_complex_excel_chat_start",
         response_model=session_schema,
     )
@@ -647,17 +647,3 @@ def register_complex_excel(
         return await chat_ops.feedback(chat_id, text=text, bg=bg, retry=retry)
 
 
-__all__ = (
-    "to_iso_date",
-    "to_int",
-    "date_columns",
-    "build_complex_skeleton",
-    "boundary_pattern",
-    "infer_period",
-    "ComplexExcelExecutor",
-    "ComplexExcelConfig",
-    "DEFAULT_DIAGNOSE_PROMPT",
-    "register_chat_handler",
-    "complex_excel_task",
-    "register_complex_excel",
-)
