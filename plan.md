@@ -108,9 +108,9 @@ bosch-ai-framework/
 | Monorepo | 10/10 | 结构清晰 |
 | uv workspace | 10/10 | 依赖管理完善 |
 | CF 部署模式 | 9/10 | 独立 App，推根 deploy |
-| infra 抽象 | 8/10 | llm/agent/skill/task 子包已完成 |
-| Agent Framework 化 | **6/10** | 框架有了，但 forecast 还在自己维护 Agent Loop |
-| Skill 体系 | **5/10** | infra/skill 框架就绪，但 forecast skills 没迁上来 |
+| infra 抽象 | 9/10 | llm/agent/skill/task 子包完成，只剩 auth/settings/logs 待收尾 |
+| Agent Framework 化 | **9/10** | BaseAgent + AgentLoop + Executor/Planner/Memory 接口就绪，ForecastAgent 已继承 |
+| Skill 体系 | **8/10** | infra/skill 框架就绪，forecast 17 个 preset 已迁移到 SkillRegistry |
 
 ### 实施路线
 
@@ -123,9 +123,15 @@ bosch-ai-framework/
 | **P4** | AI Gateway — 远期 | 远期 |
 | **P5** | `infra/agent/` 扩展 — BaseAgent + Executor + Planner + Memory | ✅ 完成 |
 | **P6** | Skills 落地 — forecast presets 迁移到 `infra.skill.Skill` | ✅ 完成 |
-| **P7** | forecast 瘦身 — `ForecastAgent(BaseAgent)` + tools 换 `infra.agent.ToolRegistry` | ✅ 完成 |
+| **P7** | forecast 瘦身 — `ForecastAgent(BaseAgent)` + tools → `infra.agent.ToolRegistry` | ✅ |
+| **P8** | `auth.py` `settings.py` → `config/`，`logs.py` → `logging/` — 杜绝 flat-file 膨胀 | ✅ |
+| **P9** | `llm.chat(app=...)` — API 加 app 上下文，未来 Cost/Audit 零改动 | ✅ |
+| **P10** | `core/` 目录规范 — 规则已定，存量违规待清理 | ✅ |
 | **P6** | Skills 落地 — forecast presets 迁移到 `infra.skill.Skill` | ✅ 完成 |
-| **P7** | forecast 瘦身 — `ForecastAgent(BaseAgent)` + tools 换 `infra.agent.ToolRegistry` | ✅ 完成 |
+| **P7** | forecast 瘦身 — `ForecastAgent(BaseAgent)` + tools → `infra.agent.ToolRegistry` | ✅ |
+| **P8** | `auth.py` `settings.py` → `config/`，`logs.py` → `logging/` — 杜绝 flat-file 膨胀 | ✅ |
+| **P9** | `llm.chat(app=...)` — API 加 app 上下文，未来 Cost/Audit 零改动 | ✅ |
+| **P10** | `core/` 目录规范 — 规则已定，存量违规待清理 | ✅ |
 
 ### 目标：半年后的 infra
 
@@ -147,6 +153,31 @@ infra/
 ├── task/                       # 任务管理
 ├── auth.py / settings.py / logs.py / utils.py
 ```
+
+### P10: `core/` 目录规范
+
+**规则：agent 的 `core/` 只放领域逻辑，框架能力属于 `infra/`。**
+
+| 允许在 agent `core/` | 禁止在 agent `core/`（应在 infra） |
+|----------------------|----------------------------------|
+| 领域 Agent 子类 (ForecastAgent) | AgentLoop / AgentLoopConfig |
+| 领域 Tool 实现 (preview_data, analyze_data) | ToolRegistry / Tool 基类 |
+| 领域 Skill 实现 (moving_average, jitcall) | SkillRegistry / Skill 基类 |
+| 领域 Orchestrator (chat → forecast skill) | LLM client / Router |
+| 领域 Memory (session 保存/搜索) | AgentMemory 基类 |
+| 领域 Executor (DSL 解析, 沙箱) | Executor 基类 |
+| 领域配置 (BTP service binding) | 通用 Auth / Settings / Logging |
+
+**存量违规（待清理）：**
+
+| 文件 | 违规 | 应改为 |
+|------|------|--------|
+| `rag/core/llm.py` | 自建 LiteLLM Router | `from infra.llm import get_router` |
+| `rag/core/observability.py` | JSON logging 中间件 | `from infra.logging import JsonFormatter` |
+| `rag/core/ratelimit.py` | Token bucket rate limiter | → `infra/` 或保留为 rag 特有 |
+| `forecast/core/rate_limit.py` | FastAPI rate limit 中间件 | 同上 |
+
+> 这些文件目前功能正常，不急于改。新增 agent 时必须遵守此规范。
 
 ### 设计原则
 

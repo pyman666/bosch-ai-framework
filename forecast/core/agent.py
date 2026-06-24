@@ -147,6 +147,7 @@ class ForecastAgent(BaseAgent):
     """Forecast AI Agent — 声明式定义，框架执行循环."""
 
     system_prompt = SYSTEM_PROMPT
+    app_name = "forecast"
     tools = FORECAST_TOOLS
     config = AgentLoopConfig(max_turns=10)
 

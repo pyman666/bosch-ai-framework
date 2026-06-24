@@ -48,6 +48,7 @@ class BaseAgent(ABC):
     """
 
     system_prompt: str = ""
+    app_name: str = ""
     tools: ToolRegistry | None = None
     skills: SkillRegistry | None = None
     config: AgentLoopConfig = AgentLoopConfig()
@@ -130,4 +131,5 @@ class BaseAgent(ABC):
             registry=self.tools or ToolRegistry(),
             system_prompt=self.system_prompt,
             config=self.config,
+            app_name=self.app_name,
         )

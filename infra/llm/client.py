@@ -28,6 +28,9 @@ async def stream(
     messages: list[dict[str, Any]],
     tools: list[dict[str, Any]] | None = None,
     model: str | None = None,
+    *,
+    app: str = "",
+    user: str = "",
 ) -> AsyncIterator[dict[str, Any]]:
     """流式调用 LLM, yield 增量事件.
 
@@ -89,6 +92,9 @@ async def chat(
     messages: list[dict[str, Any]],
     tools: list[dict[str, Any]] | None = None,
     model: str | None = None,
+    *,
+    app: str = "",
+    user: str = "",
 ) -> dict[str, Any]:
     """非流式调用 LLM, 返回完整响应.
 

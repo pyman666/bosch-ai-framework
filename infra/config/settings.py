@@ -2,7 +2,7 @@
 
 用法::
 
-    from infra.settings import DEFAULT_MODEL, MODEL_LIST, ROUTER_KWARGS
+    from infra.config.settings import DEFAULT_MODEL, MODEL_LIST, ROUTER_KWARGS
 
 环境变量:
     - ``<PREFIX>_MODEL_CONFIG``: 自定义配置文件路径 (默认: 模块同级 settings.yaml)

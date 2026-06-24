@@ -6,8 +6,7 @@
     from infra.agent import ToolRegistry, AgentLoop
     from infra.skill import Skill, SkillRegistry
     from infra.task import create_task, get_task, set_phase, TaskStatus
-    from infra.auth import require_auth
-    from infra.settings import load_config
+    from infra.config import require_auth, load_config
 """
 
 __version__ = "0.1.0"

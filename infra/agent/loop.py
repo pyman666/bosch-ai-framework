@@ -67,10 +67,13 @@ class AgentLoop:
         registry: ToolRegistry,
         system_prompt: str = "",
         config: AgentLoopConfig | None = None,
+        *,
+        app_name: str = "",
     ) -> None:
         self.registry = registry
         self.system_prompt = system_prompt
         self.config = config or AgentLoopConfig()
+        self.app_name = app_name
 
     # -------------------------------------------------------------------
     # Non-streaming
@@ -96,6 +99,7 @@ class AgentLoop:
                 working,
                 tools=self.registry.get_definitions(),
                 model=model or self.config.model,
+                app=self.app_name,
             )
 
             tcs = resp.get("tool_calls", [])
@@ -127,7 +131,7 @@ class AgentLoop:
             if tc_count >= self.config.max_tool_calls:
                 break
 
-        final = await chat(working, tools=None, model=model or self.config.model)
+        final = await chat(working, tools=None, model=model or self.config.model, app=self.app_name)
         working.append({"role": "assistant", "content": final["content"]})
         return {"content": final["content"], "messages": working, "tool_calls": records}
 
@@ -161,6 +165,7 @@ class AgentLoop:
                 working,
                 tools=self.registry.get_definitions(),
                 model=model or self.config.model,
+                app=self.app_name,
             ):
                 if "delta" in event:
                     content_acc += event["delta"]
@@ -202,7 +207,7 @@ class AgentLoop:
             if tc_count >= self.config.max_tool_calls:
                 break
 
-        final = await chat(working, tools=None, model=model or self.config.model)
+        final = await chat(working, tools=None, model=model or self.config.model, app=self.app_name)
         working.append({"role": "assistant", "content": final["content"]})
         yield {"type": "done", "content": final["content"], "messages": working, "tool_calls": records}
 
