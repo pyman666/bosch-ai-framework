@@ -70,6 +70,7 @@ bosch-ai-framework/
 │   │   └── backend.py          # TaskBackend(ABC) + MemoryTaskBackend
 │   ├── auth.py                 # HTTP Basic + XSUAA 鉴权
 │   ├── settings.py             # YAML + env 配置
+│   ├── settings.yaml           # 模型配置（所有 agent 共享）
 │   ├── logs.py                 # JSON 日志
 │   └── utils.py
 ├── document/                   # 文档解析（原 apdfi/idoc）

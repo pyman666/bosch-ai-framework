@@ -99,6 +99,9 @@ bosch-ai-framework/
 - [x] **动态 requirements.txt** — deploy.sh 按 agent 生成，不再全量安装
 - [x] **Python 版本上界** — 6 个 pyproject.toml 全部加 `<3.13`
 - [x] **CI workflow** — lint + import check
+- [x] **消除 settings/auth/llm/tasks/utils 重复** — document/forecast/analytics 的 12 个文件已删除，统一从 infra 导入
+- [x] **settings.yaml 统一** — 根目录一份 → `infra/settings.yaml`，所有 agent 共享
+- [x] **AUTH_MODE 默认 none** — CI / import 测试不崩，生产设 `AUTH_MODE=basic` 开启鉴权
 
 ---
 
@@ -113,7 +116,7 @@ bosch-ai-framework/
 | Monorepo | 10/10 | 结构清晰 |
 | uv workspace | 10/10 | 依赖管理完善 |
 | CF 部署模式 | 9/10 | 独立 App，推根 deploy |
-| infra 抽象 | 9/10 | llm/agent/skill/task 子包完成，只剩 auth/settings/logs 待收尾 |
+| infra 抽象 | **10/10** | llm/agent/skill/task 子包完成，settings/auth/logs 统一，12 个重复文件已删除 |
 | Agent Framework 化 | **9/10** | BaseAgent + AgentLoop + Executor/Planner/Memory 接口就绪，ForecastAgent 已继承 |
 | Skill 体系 | **8/10** | infra/skill 框架就绪，forecast 17 个 preset 已迁移到 SkillRegistry |
 
@@ -151,7 +154,11 @@ infra/
 │   └── loader.py               # Skill 发现/加载
 ├── task/                       # 任务管理
 ├── auth.py / settings.py / logs.py / utils.py
+│   └── settings.yaml           # 模型配置（所有 agent 共享）
 ```
+
+> 2025-06: document/forecast/analytics 的 auth/settings/llm/tasks/utils 12 个文件
+> 已删除（-1300 行）。所有 agent 统一 `from infra.xxx import ...`。
 
 ### P10: `core/` 目录规范
 
