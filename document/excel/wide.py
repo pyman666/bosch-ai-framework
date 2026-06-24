@@ -68,11 +68,11 @@ from pydantic import BaseModel, Field
 
 from ._common import excel_upload, _is_nullish
 from .core import ExcelConfig, PyExcel, PyXL
-from ..llm import aclient
+from infra.llm import aclient
 from ..chat import ChatPlan
-from ..settings import DEFAULT_MODEL
-from ..tasks import TaskResult, TaskStatus, create_task, get_task, set_phase
-from ..utils import exception_detail
+from infra.settings import DEFAULT_MODEL
+from infra.task import TaskResult, TaskStatus, create_task, get_task, set_phase
+from infra.utils import exception_detail
 
 
 # ---------------------------------------------------------------------------

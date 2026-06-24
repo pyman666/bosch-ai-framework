@@ -24,7 +24,7 @@ from forecast.models.assistant import (
     AssistantMessage,
     AssistantMessageRequest,
 )
-from forecast.llm import chat_stream, chat
+from infra.llm import chat_stream, chat
 
 router = APIRouter(prefix="/api/v1/assistant", tags=["assistant"])
 

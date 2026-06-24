@@ -9,7 +9,7 @@ from typing import Any
 from sqlalchemy.orm import Session
 
 from forecast.db_models import ChatSessionORM
-from forecast.llm import chat as llm_chat
+from infra.llm import chat as llm_chat
 from forecast.models.forecast import ForecastInput
 from forecast.models.skill import SkillCreate, SkillType, ParamDef
 from forecast.core import skill_manager

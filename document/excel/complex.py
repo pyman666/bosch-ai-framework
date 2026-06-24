@@ -53,11 +53,11 @@ from pydantic import BaseModel
 
 from ._common import excel_upload
 from .core import PyXL
-from ..llm import aclient
+from infra.llm import aclient
 from ..chat import ChatPlan, Session, ops as chat_ops, register
-from ..settings import DEFAULT_MODEL
-from ..tasks import TaskID, TaskResult, TaskStatus, create_task, get_task, set_phase
-from ..utils import exception_detail
+from infra.settings import DEFAULT_MODEL
+from infra.task import TaskID, TaskResult, TaskStatus, create_task, get_task, set_phase
+from infra.utils import exception_detail
 
 
 # ---------------------------------------------------------------------------

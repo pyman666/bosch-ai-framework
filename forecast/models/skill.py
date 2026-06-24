@@ -9,7 +9,7 @@ from uuid import uuid4
 
 from pydantic import BaseModel, Field
 
-from forecast.utils import utcnow as _utcnow
+from infra.utils import utcnow as _utcnow
 
 
 # ---------------------------------------------------------------------------

@@ -18,7 +18,7 @@ log = logging.getLogger(__name__)
 async def lifespan(app: FastAPI):
     """应用生命周期: 启动时预热 LLM Router, 关闭时清理."""
     # 启动时预热 — 触发 Router 初始化, 提前暴露配置错误
-    from analytics.llm import get_router
+    from infra.llm import get_router
 
     get_router()
     log.info("ABI gateway started, LLM router ready")

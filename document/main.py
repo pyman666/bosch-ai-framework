@@ -5,8 +5,8 @@ from fastapi.exceptions import ResponseValidationError
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
-from document.auth import require_auth
-from document.utils import exception_detail
+from infra.auth import require_auth
+from infra.utils import exception_detail
 from document.pdf import router as pdf_router
 from document.excel import router as excel_router
 

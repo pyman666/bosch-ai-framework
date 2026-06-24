@@ -12,7 +12,7 @@ from sse_starlette.sse import EventSourceResponse
 from forecast.database import get_db, SessionLocal
 from forecast.db_models import ChatSessionORM
 from forecast.core.memory import compact_messages_for_agent, delete_session_memory, save_session_snapshot
-from forecast.utils import utcnow as _utcnow
+from infra.utils import utcnow as _utcnow
 from forecast.models.chat import (
     ChatSession, ChatSessionCreate, ChatMessage,
     ChatRequest,

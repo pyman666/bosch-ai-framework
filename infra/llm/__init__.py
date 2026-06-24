@@ -24,3 +24,20 @@ from infra.llm.router import (
     instructor_call,
 )
 
+# Module-level lazy accessors — match document.llm pattern
+_router = None
+_aclient = None
+
+
+def __getattr__(name: str):
+    global _router, _aclient
+    if name == "router":
+        if _router is None:
+            _router = get_router()
+        return _router
+    if name == "aclient":
+        if _aclient is None:
+            _aclient = get_instructor_client()
+        return _aclient
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+

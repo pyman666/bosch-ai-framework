@@ -9,8 +9,8 @@ import logging
 
 from fastapi import BackgroundTasks, HTTPException
 
-from ..llm import aclient
-from ..settings import DEFAULT_MODEL
+from infra.llm import aclient
+from infra.settings import DEFAULT_MODEL
 from .diagnose import safe_run
 from .handler import ChatHandler
 from .registry import get as get_handler

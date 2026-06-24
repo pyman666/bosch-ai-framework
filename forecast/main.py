@@ -18,7 +18,7 @@ from fastapi.responses import HTMLResponse, JSONResponse
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
-from forecast.auth import require_auth
+from infra.auth import require_auth
 from forecast.database import get_db, init_db, SessionLocal
 from forecast.core.skill_manager import seed_preset_skills
 from forecast.core.rate_limit import RateLimitMiddleware
@@ -34,7 +34,7 @@ async def lifespan(app: FastAPI):
     finally:
         db.close()
 
-    from forecast.task import cleanup_expired_tasks
+    from infra.task import cleanup_expired_tasks
     from forecast.routes.assistant import _cleanup_expired as assistant_cleanup
 
     async def _combined_cleanup():

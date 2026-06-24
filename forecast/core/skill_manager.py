@@ -7,7 +7,7 @@ import logging
 from sqlalchemy.orm import Session
 
 from forecast.db_models import SkillORM, SkillVersionORM
-from forecast.utils import utcnow as _utcnow
+from infra.utils import utcnow as _utcnow
 from forecast.models.skill import (
     Skill, SkillCreate, SkillUpdate, SkillType, SkillStatus, ParamDef, SkillVersion,
 )

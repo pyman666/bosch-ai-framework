@@ -15,7 +15,7 @@ import logging
 import os
 from typing import Any, AsyncIterator
 
-from analytics.llm import chat, chat_stream
+from infra.llm import chat, chat_stream
 from analytics.core.tools import get_tools
 from analytics.core.session import get_session
 from analytics.core.mock_bff import handle_mock

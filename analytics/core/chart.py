@@ -7,7 +7,7 @@ import logging
 import re
 from typing import Any
 
-from analytics.llm import chat
+from infra.llm import chat
 
 log = logging.getLogger(__name__)
 

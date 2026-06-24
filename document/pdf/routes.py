@@ -3,7 +3,7 @@ import pkgutil
 
 from fastapi import APIRouter, BackgroundTasks, Depends, Form, HTTPException
 
-from ..tasks import TaskResult, create_task, get_task
+from infra.task import TaskResult, create_task, get_task
 from ._common import PdfExtractionAck, dump_schema_fields, pdf_params
 from .pipeline.runner import pdf_pipeline
 

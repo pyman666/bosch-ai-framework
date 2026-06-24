@@ -14,8 +14,8 @@ from .wide import _build_ack as _build_wide_ack, wide_excel_task
 from .simple import SimpleExcelTaskAck, simple_excel_task
 from .complex import complex_excel_task
 from ._common import excel_upload
-from ..settings import DEFAULT_MODEL
-from ..tasks import TaskResult, create_task, get_task
+from infra.settings import DEFAULT_MODEL
+from infra.task import TaskResult, create_task, get_task
 from ..chat import ops as chat_ops
 from . import clients as _clients_pkg
 from .clients import all_labels, get_config

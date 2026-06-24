@@ -8,7 +8,7 @@ import logging
 from sqlalchemy import Column, String, Integer, Text, DateTime, ForeignKey
 
 from forecast.database import Base
-from forecast.utils import utcnow as _utcnow
+from infra.utils import utcnow as _utcnow
 
 log = logging.getLogger(__name__)
 

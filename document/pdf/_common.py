@@ -5,8 +5,8 @@ from typing import Any, Union, get_args, get_origin
 from fastapi import APIRouter, BackgroundTasks, Depends, File, Form, UploadFile
 from pydantic import BaseModel, Field
 
-from ..settings import DEFAULT_MODEL
-from ..tasks import TaskResult, create_task, get_task
+from infra.settings import DEFAULT_MODEL
+from infra.task import TaskResult, create_task, get_task
 
 
 async def pdf_params(

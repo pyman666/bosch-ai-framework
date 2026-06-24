@@ -6,8 +6,8 @@ from typing import Awaitable, TypeVar
 import litellm.exceptions as _lle
 from instructor.core import InstructorRetryException
 
-from ..llm import router as _router
-from ..settings import DEFAULT_MODEL
+from infra.llm import router as _router
+from infra.settings import DEFAULT_MODEL
 from .handler import BusinessFailure, ChatHandler
 
 

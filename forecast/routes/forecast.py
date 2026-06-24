@@ -19,7 +19,7 @@ from forecast.core import skill_manager
 from forecast.core.accuracy import compute_accuracy
 from forecast.core.executor import execute_skill
 from forecast.core.rate_limit import is_heavy_skill
-from forecast.task import TaskID, TaskResult, create_task, get_task, set_phase, TaskStatus
+from infra.task import TaskID, TaskResult, create_task, get_task, set_phase, TaskStatus
 
 
 class BatchForecastRequest(BaseModel):
