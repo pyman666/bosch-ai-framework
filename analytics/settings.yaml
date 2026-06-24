@@ -1,0 +1,16 @@
+default_model: deepseek-v4-pro
+
+router:
+  routing_strategy: usage-based-routing-v2
+  num_retries: 2
+  cooldown_time: 60
+
+providers:
+  - provider: openai
+    api_base: https://dashscope.aliyuncs.com/compatible-mode/v1
+    keys: [DASHSCOPE_API_KEY]
+    models:
+      - deepseek-v4-pro
+      - deepseek-v4-flash
+      - qwen3.7-max-2026-05-17
+      - qwen3.7-max

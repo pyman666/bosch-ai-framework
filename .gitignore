@@ -216,3 +216,30 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# ============================================================================
+# Monorepo-specific
+# ============================================================================
+
+# uv virtual environment
+.venv/
+
+# Database files (forecast sqlite)
+*.db
+*.sqlite3
+forecast/data/
+
+# IDE
+.idea/
+.vscode/
+
+# Agent runtime artifacts
+*.log
+*.pid
+
+# Agent docs (matches original per-repo gitignores)
+document/docs/
+rag/docs/
+forecast/docs/raw/
+forecast/docs/bpae/
+

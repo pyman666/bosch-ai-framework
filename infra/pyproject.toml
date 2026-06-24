@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "infra"
+version = "0.1.0"
+description = "LLM 项目公共基础设施包 — LiteLLM Router、Auth、Tasks、Logging"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.104.0",
+    "pydantic>=2.0",
+    "litellm>=1.0",
+    "python-dotenv>=1.0",
+    "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+instructor = ["instructor>=0.4"]
+xsuaa = ["sap-xssec>=3.0"]
+dev = ["pytest>=7.0", "ruff>=0.1.0"]
+
+[tool.setuptools.packages.find]
+where = [".."]
+include = ["infra"]

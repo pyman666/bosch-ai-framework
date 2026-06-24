@@ -1,0 +1,35 @@
+[{
+	"carModel": "A3油车汇总",
+	"color": "其他颜色",
+	"demand": [
+		{
+			"date": "2026-01-01",
+			"qty": 0
+		},
+		{
+			"date": "2026-01-02",
+			"qty": 0
+		},
+		{
+			"date": "2026-01-03",
+			"qty": 57
+		}
+	],
+	"pgi": [
+		{
+			"date": "2026-01-01",
+			"qty": 0
+		},
+		{
+			"date": "2026-01-02",
+			"qty": 0
+		},
+		{
+			"date": "2026-01-03",
+			"qty": 33
+		}
+	],
+	"beginningInventory": 100,
+	"other_factors_to_be_added": 0,
+	"forecast_period": 3
+}]

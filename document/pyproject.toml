@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "document"
+version = "0.1.0"
+description = "智能文档解析 — PDF 字段抽取 + 复杂业务 Excel 解析"
+requires-python = ">=3.11"
+dependencies = [
+    "infra",
+    "fastapi>=0.104.0",
+    "pydantic>=2.0",
+    "pandas>=2.0",
+    "openpyxl>=3.1",
+    "numpy>=1.26",
+    "rapidfuzz",
+    "uvicorn[standard]>=0.30",
+    "python-multipart>=0.0.19",
+    "instructor>=0.4",
+    "PyMuPDF>=1.23",
+    "pymupdf4llm",
+    "Pillow",
+]
+
+[tool.uv.sources]
+infra = { workspace = true }
+
+[tool.setuptools.packages.find]
+where = [".."]
+include = ["document*"]

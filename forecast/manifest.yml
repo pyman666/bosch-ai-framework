@@ -1,0 +1,17 @@
+---
+applications:
+  - name: forecast
+    path: ./
+    memory: 2G
+    disk_quota: 2G
+    buildpacks:
+      - python_buildpack
+    command: gunicorn forecast.main:app -c gunicorn_config.py -w 4 -b 0.0.0.0:$PORT
+
+    health-check-type: http
+    health-check-http-endpoint: /health
+    health-check-invocation-timeout: 5
+    timeout: 180
+
+    env:
+      ENV: production

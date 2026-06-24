@@ -1,34 +1,20 @@
 [project]
-name = "bosch-ai-framework"
+name = "bosch-ai-platform"
 version = "0.1.0"
-description = "LLM application framework — LiteLLM wrapper, Agent loop, RAG, document parsing, DSL, sandbox, chat FSM"
+description = "Bosch AI Platform Monorepo"
 requires-python = ">=3.11"
-license = { text = "Proprietary" }
-dependencies = [
-    "fastapi>=0.104.0",
-    "pydantic>=2",
-    "litellm>=1",
-    "python-dotenv>=1",
-    "pyyaml>=6",
-    "gunicorn>=22",
-    "uvicorn[standard]>=0.30",
+
+[tool.uv.workspace]
+members = [
+    "infra",
+    "document",
+    "rag",
+    "forecast",
+    "analytics",
 ]
 
-[project.optional-dependencies]
-instructor = ["instructor>=0.4"]
-xsuaa = ["sap-xssec>=3.0"]
-rag = ["numpy>=1.26", "sentence-transformers>=2.7", "faiss-cpu>=1.8", "rank-bm25>=0.2.2"]
-document = ["instructor>=0.4", "PyMuPDF>=1.23", "pymupdf4llm", "pandas>=2.0", "openpyxl>=3.1", "numpy>=1.26", "rapidfuzz", "Pillow"]
-dsl = []
-sandbox = []
-chat = []
-all = [
-    "bosch-ai-framework[instructor,xsuaa,rag,document,dsl,sandbox,chat]",
+[dependency-groups]
+dev = [
+    "pytest>=7.0",
+    "ruff>=0.1.0",
 ]
-
-[build-system]
-requires = ["setuptools>=75", "wheel"]
-build-backend = "setuptools.build_meta"
-
-[tool.setuptools.packages.find]
-include = ["bosch_ai_framework*"]

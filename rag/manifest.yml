@@ -1,0 +1,27 @@
+---
+applications:
+  - name: rag
+    random-route: true
+    routes:
+      - route: rag.cfapps.eu10.hana.ondemand.com
+    path: ./
+    memory: 2G
+    disk_quota: 3G
+    buildpacks:
+      - python_buildpack
+    command: gunicorn rag.main:app -c gunicorn_conf.py
+
+    # ---- Health check -----------------------------------------------------
+    health-check-type: http
+    health-check-http-endpoint: /readyz
+    health-check-invocation-timeout: 5
+    timeout: 180
+
+    services:
+      - rb-bpae_application-log_lite_0
+      # 凭证 / AI Core / XSUAA / Redis 服务绑定.
+      # BTP 实际 service instance 名保持 bapee-* (未改):
+      # - bapee-bot-creds
+      # - bapee-aicore
+      # - bapee-xsuaa
+      # - bapee-redis

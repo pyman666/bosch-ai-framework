@@ -1,0 +1,19 @@
+{
+  "_comment": "BTP XSUAA service descriptor — 创 xsuaa instance 时通过 -c 参数传入. 详见 README 的 BTP 部署节.",
+  "_comment_scopes": "scope 短名跟代码里 bapee/auth.py REQUIRED_SCOPES 元组对应; 暂时不限定具体 scope (REQUIRED_SCOPES 留空), 你按需填.",
+
+  "xsappname": "bapee",
+  "tenant-mode": "dedicated",
+
+  "scopes": [],
+
+  "role-templates": [],
+
+  "role-collections": [],
+
+  "oauth2-configuration": {
+    "token-validity": 3600,
+    "refresh-token-validity": 86400,
+    "system-attributes": ["groups", "rolecollections"]
+  }
+}
