@@ -6,20 +6,33 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-# 所有业务 router (PDF / Excel) 共用同一对 basic auth 凭证, 都从 .env 读:
-#   - ``BAUTH_KEY``    -> 用户名 (basic auth username)
-#   - ``BAUTH_SECRET`` -> 密码 (basic auth password)
-# 之前 username 在 ``apdfi/auth.py`` 里 hardcode 成 ``apdfi-api``, secret 走
-# ``APDFI_SECRET`` / ``APDFI_PDF_SECRET`` 环境变量, 现在统一搬到 ``BAUTH_*``,
-# 部署时改 .env 一处即可换 user/secret, 不用碰代码.
+# ---------------------------------------------------------------------------
+# 鉴权配置 (对齐 infra/settings.py 的模式, 非鉴权场景设 AUTH_MODE=none 跳过)
+# ---------------------------------------------------------------------------
+
+_VALID_AUTH_MODES = ("none", "basic", "xsuaa", "both")
+
+_auth_mode: str = os.environ.get("AUTH_MODE", "basic").strip().lower()
+if _auth_mode not in _VALID_AUTH_MODES:
+    raise RuntimeError(
+        f"环境变量 AUTH_MODE='{_auth_mode}' 非法, 只接受: {_VALID_AUTH_MODES}."
+    )
+
+# --- basic 凭据 ---------------
+
 _bauth_key = os.environ.get("BAUTH_KEY")
 _bauth_secret = os.environ.get("BAUTH_SECRET")
-if not _bauth_key or not _bauth_secret:
-    raise RuntimeError(
-        "环境变量 BAUTH_KEY 和 BAUTH_SECRET 必须都设置 (检查 .env)."
-    )
-_basic_auth_user: bytes = _bauth_key.encode("utf-8")
-_basic_auth_secret: bytes = _bauth_secret.encode("utf-8")
+if _auth_mode in ("basic", "both"):
+    if not _bauth_key or not _bauth_secret:
+        raise RuntimeError(
+            f"AUTH_MODE='{_auth_mode}' 需要 BAUTH_KEY 和 BAUTH_SECRET 都设置 "
+            "(检查 .env). 想完全禁掉鉴权, 设 AUTH_MODE=none."
+        )
+_basic_auth_user: bytes | None = _bauth_key.encode("utf-8") if _bauth_key else None
+_basic_auth_secret: bytes | None = _bauth_secret.encode("utf-8") if _bauth_secret else None
+
+
+# --- XSUAA 凭据 ---------------
 
 
 # ---------------------------------------------------------------------------
