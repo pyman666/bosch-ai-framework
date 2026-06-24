@@ -37,6 +37,7 @@ log = logging.getLogger(__name__)
 
 # 401 时回给客户端的 ``WWW-Authenticate`` 提示, 跟 mode 对齐.
 _WWW_AUTH = {
+    "none": "",
     "basic": 'Basic realm="api"',
     "xsuaa": "Bearer",
     "both": 'Basic realm="api", Bearer',
@@ -113,7 +114,9 @@ async def require_auth(request: Request) -> None:
     auth = request.headers.get("authorization") or ""
     scheme = auth.split(" ", 1)[0].lower() if auth else ""
 
-    if _auth_mode == "basic":
+    if _auth_mode == "none":
+        return  # 跳过鉴权
+    elif _auth_mode == "basic":
         ok = scheme == "basic" and _check_basic(auth)
     elif _auth_mode == "xsuaa":
         ok = scheme == "bearer" and _check_xsuaa(auth)
