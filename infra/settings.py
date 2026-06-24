@@ -112,7 +112,7 @@ if _auth_mode in ("xsuaa", "both"):
 # 模型配置加载
 # ---------------------------------------------------------------------------
 
-_config_path = Path(__file__).parent.parent / "settings.yaml"
+_config_path = Path(__file__).parent / "settings.yaml"
 
 # 延迟加载配置 (避免模块导入时 IO)
 _cfg: dict | None = None

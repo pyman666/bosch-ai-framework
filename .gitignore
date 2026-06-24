@@ -232,6 +232,10 @@ __marimo__/
 forecast/data/
 forecast/memory/
 
+# macOS
+.DS_Store
+**/.DS_Store
+
 # IDE
 .idea/
 .vscode/
