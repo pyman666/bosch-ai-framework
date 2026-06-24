@@ -106,7 +106,7 @@ if _auth_mode in ("xsuaa", "both"):
 # ---------------------------------------------------------------------------
 # 避免依赖工作目录, 在 gunicorn / Docker 等场景下更稳.
 # ---------------------------------------------------------------------------
-_default_config = Path(__file__).parent / "settings.yaml"
+_default_config = Path(__file__).parent.parent / "settings.yaml"
 _config_path = Path(os.environ.get("ABI_MODEL_CONFIG", _default_config))
 _cfg: dict = yaml.safe_load(_config_path.read_text(encoding="utf-8"))
 

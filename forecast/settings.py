@@ -15,7 +15,7 @@ litellm.drop_params = True
 log = logging.getLogger(__name__)
 
 
-_default_config = Path(__file__).parent / "settings.yaml"
+_default_config = Path(__file__).parent.parent / "settings.yaml"
 _config_path = Path(os.environ.get("FCST_CONFIG", _default_config))
 _cfg: dict[str, Any] = yaml.safe_load(_config_path.read_text(encoding="utf-8"))
 

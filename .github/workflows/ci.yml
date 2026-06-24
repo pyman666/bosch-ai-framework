@@ -17,8 +17,6 @@ jobs:
       - run: uv sync --all-packages
       - run: uv run ruff check .
       - name: Import check — all agents
-        env:
-          AUTH_MODE: none
         run: |
           uv run python -c "from infra.llm import chat, stream; from infra.agent import BaseAgent, ToolRegistry; from infra.skill import Skill; from infra.task import create_task, TaskStatus"
           uv run python -c "from document.main import app"
