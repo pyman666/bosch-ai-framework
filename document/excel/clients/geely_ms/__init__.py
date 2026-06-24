@@ -20,7 +20,7 @@
 from ...core import ExcelConfig, FilterBlock, FilterConfig, HeaderConfig
 from ...wide import WideExcelConfig
 from .. import support
-from .schemas import GeelyMsData, GeelyMsRow  # noqa: F401
+from .schemas import GeelyMsData, GeelyMsRow
 
 
 # 业务方约定的 id 列 (Excel 中文列名 -> JSON 字段名). Python 路径会在 clean matrix

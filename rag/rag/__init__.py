@@ -53,14 +53,14 @@ LiteLLM 调用 这套 RAG pipeline 提炼成业务无关的库, 通过 :class:`H
 后通过 ``HybridPipelineConfig.router`` 注入, ``rag`` 只消费
 ``router.acompletion(...)`` 接口, 不持有构造责任.
 """
-from .corpus import Chunk  # noqa: F401
-from .markdown_kb import (  # noqa: F401
+from .corpus import Chunk
+from .markdown_kb import (
     DEFAULT_CONVENTION,
     MarkdownKbConvention,
     classify_markdown,
     split_h2,
 )
-from .organize import (  # noqa: F401
+from .organize import (
     DEFAULT_KIND_DESC,
     DEFAULT_LAYER_DESC,
     DEFAULT_NO_USER_QUESTION_FALLBACK,
@@ -68,6 +68,6 @@ from .organize import (  # noqa: F401
     DEFAULT_PROMPT_HEAD_TMPL,
     PromptTemplates,
 )
-from .pipeline import HybridPipeline, HybridPipelineConfig  # noqa: F401
-from .retrieve_lookup import LookupHit  # noqa: F401
+from .pipeline import HybridPipeline, HybridPipelineConfig
+from .retrieve_lookup import LookupHit
 

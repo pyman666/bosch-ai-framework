@@ -19,6 +19,6 @@
 外部 (``apdfi.server``) 通过 ``from document.excel import router`` 拿到挂好所有
 endpoint 的 APIRouter, 不需要触碰内部子模块.
 """
-from .routes import router  # noqa: F401
+from .routes import router
 
 

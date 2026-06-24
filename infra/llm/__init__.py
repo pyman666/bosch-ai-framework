@@ -16,8 +16,8 @@
 client.py 和所有业务代码不动。
 """
 
-from infra.llm.client import chat, chat_stream, stream  # noqa: F401
-from infra.llm.router import (  # noqa: F401
+from infra.llm.client import chat, chat_stream, stream
+from infra.llm.router import (
     _configure,
     get_instructor_client,
     get_router,

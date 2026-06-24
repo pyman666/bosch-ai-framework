@@ -30,7 +30,7 @@ LLM-fallback) 自动:
 from ...core import ExcelConfig, FilterBlock, FilterConfig, HeaderConfig
 from ...wide import WideExcelConfig
 from .. import support
-from .schemas import GeelyCdData, GeelyCdRow  # noqa: F401
+from .schemas import GeelyCdData, GeelyCdRow
 
 
 # 业务方约定的 id 列 (Excel 中文列名 -> JSON 字段名). Python 路径会在 clean matrix

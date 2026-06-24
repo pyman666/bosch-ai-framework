@@ -27,7 +27,7 @@ LLM-fallback) 自动:
 from ...core import ExcelConfig, HeaderConfig
 from ...wide import WideExcelConfig
 from .. import support
-from .schemas import GeelyYyData, GeelyYyRow  # noqa: F401
+from .schemas import GeelyYyData, GeelyYyRow
 
 
 # 业务方约定的 id 列 (Excel 中文列名 -> JSON 字段名).
