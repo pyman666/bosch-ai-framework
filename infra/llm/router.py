@@ -30,7 +30,7 @@ _DEFAULT_MODEL: str = ""
 
 
 def _configure(*, model_list: list[dict], router_kwargs: dict, default_model: str) -> None:
-    """在服务启动时配置 LLM 模块 (由 infra.config.settings 自动调用)."""
+    """在服务启动时配置 LLM 模块 (由 infra.settings 自动调用)."""
     global _MODEL_LIST, _ROUTER_KWARGS, _DEFAULT_MODEL
     _MODEL_LIST = model_list
     _ROUTER_KWARGS = router_kwargs
@@ -43,8 +43,8 @@ def get_router() -> Router:
     if _router is None:
         if not _MODEL_LIST:
             raise RuntimeError(
-                "LLM 未配置: 请先调用 infra.config.settings.load_config() 或 "
-                "确保在导入 infra.llm 之前已导入 infra.config.settings"
+                "LLM 未配置: 请先调用 infra.settings.load_config() 或 "
+                "确保在导入 infra.llm 之前已导入 infra.settings"
             )
         _router = Router(model_list=_MODEL_LIST, **_ROUTER_KWARGS)
     return _router

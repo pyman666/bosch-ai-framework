@@ -18,15 +18,13 @@ bosch-ai-framework/
 │   │   ├── __init__.py
 │   │   ├── tool.py             # Tool, ToolRegistry
 │   │   └── loop.py             # AgentLoop, AgentLoopConfig
-│   ├── tools.py                # → re-export from infra.agent（向后兼容）
 │   ├── skill/                  # Skill 框架（P2 ✅）
 │   │   └── __init__.py         # Skill, SkillRegistry
 │   ├── task/                    # 任务管理（P3 ✅）
 │   │   ├── __init__.py         # create_task, get_task, set_phase
 │   │   ├── types.py            # TaskStatus, TaskID, TaskResult
 │   │   └── backend.py          # TaskBackend(ABC) + MemoryTaskBackend
-│   ├── tasks.py                # → re-export from infra.task（向后兼容）
-│   ├── settings.py             # 配置加载
+│   ├── auth.py                 # 鉴权
 │   ├── logs.py                 # JSON 日志
 │   └── utils.py
 ├── document/                   # 文档解析（原 apdfi/idoc）
@@ -124,12 +122,6 @@ bosch-ai-framework/
 | **P5** | `infra/agent/` 扩展 — BaseAgent + Executor + Planner + Memory | ✅ 完成 |
 | **P6** | Skills 落地 — forecast presets 迁移到 `infra.skill.Skill` | ✅ 完成 |
 | **P7** | forecast 瘦身 — `ForecastAgent(BaseAgent)` + tools → `infra.agent.ToolRegistry` | ✅ |
-| **P8** | `auth.py` `settings.py` → `config/`，`logs.py` → `logging/` — 杜绝 flat-file 膨胀 | ✅ |
-| **P9** | `llm.chat(app=...)` — API 加 app 上下文，未来 Cost/Audit 零改动 | ✅ |
-| **P10** | `core/` 目录规范 — 规则已定，存量违规待清理 | ✅ |
-| **P6** | Skills 落地 — forecast presets 迁移到 `infra.skill.Skill` | ✅ 完成 |
-| **P7** | forecast 瘦身 — `ForecastAgent(BaseAgent)` + tools → `infra.agent.ToolRegistry` | ✅ |
-| **P8** | `auth.py` `settings.py` → `config/`，`logs.py` → `logging/` — 杜绝 flat-file 膨胀 | ✅ |
 | **P9** | `llm.chat(app=...)` — API 加 app 上下文，未来 Cost/Audit 零改动 | ✅ |
 | **P10** | `core/` 目录规范 — 规则已定，存量违规待清理 | ✅ |
 
@@ -173,7 +165,7 @@ infra/
 | 文件 | 违规 | 应改为 |
 |------|------|--------|
 | `rag/core/llm.py` | 自建 LiteLLM Router | `from infra.llm import get_router` |
-| `rag/core/observability.py` | JSON logging 中间件 | `from infra.logging import JsonFormatter` |
+| `rag/core/observability.py` | JSON logging 中间件 | `from infra.logs import JsonFormatter` |
 | `rag/core/ratelimit.py` | Token bucket rate limiter | → `infra/` 或保留为 rag 特有 |
 | `forecast/core/rate_limit.py` | FastAPI rate limit 中间件 | 同上 |
 

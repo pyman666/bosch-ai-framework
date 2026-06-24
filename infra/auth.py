@@ -3,7 +3,7 @@
 FastAPI dependency 用法::
 
     from fastapi import Depends, FastAPI
-    from infra.config.auth import require_auth
+    from infra.auth import require_auth
 
     app = FastAPI()
     app.include_router(my_router, dependencies=[Depends(require_auth)])
@@ -13,7 +13,7 @@ FastAPI dependency 用法::
 - ``xsuaa``: 仅 SAP BTP XSUAA OAuth2 JWT (``Authorization: Bearer ...``)
 - ``both``: 按 ``Authorization`` header scheme 自动 dispatch
 
-XSUAA 凭据来源见 ``infra.config.settings`` 注释.
+XSUAA 凭据来源见 ``infra.settings`` 注释.
 """
 
 from __future__ import annotations
@@ -25,7 +25,7 @@ from secrets import compare_digest
 
 from fastapi import HTTPException, Request, status
 
-from infra.config.settings import (
+from infra.settings import (
     _auth_mode,
     _basic_auth_secret,
     _basic_auth_user,
