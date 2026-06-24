@@ -99,68 +99,91 @@ bosch-ai-framework/
 
 ## 架构演进：infra 框架化
 
-目标：`infra/` 从工具集 → 真正的 AI Framework，agent 只写业务差异。
+目标：`infra/` 从工具集 → 真正的 AI Framework。Agent/Skill/Task 是框架能力，不应长在 forecast 里。
+
+### 当前评分
+
+| 维度 | 分数 | 说明 |
+|------|------|------|
+| Monorepo | 10/10 | 结构清晰 |
+| uv workspace | 10/10 | 依赖管理完善 |
+| CF 部署模式 | 9/10 | 独立 App，推根 deploy |
+| infra 抽象 | 8/10 | llm/agent/skill/task 子包已完成 |
+| Agent Framework 化 | **6/10** | 框架有了，但 forecast 还在自己维护 Agent Loop |
+| Skill 体系 | **5/10** | infra/skill 框架就绪，但 forecast skills 没迁上来 |
 
 ### 实施路线
 
 | 优先级 | 任务 | 状态 |
 |--------|------|------|
-| **P0** | `llm.py` → `llm/` 子包（client / router 分离，屏蔽 LiteLLM） | ✅ 完成 |
-| **P1** | `tools.py` → `agent/` + `tool/`（AgentLoop / ToolRegistry 独立子包） | ✅ 完成 |
-| **P2** | Skills 提升到 `infra/skill/`（`skill.execute()` 通用接口） | ✅ 框架就绪 |
-| **P3** | `tasks.py` → `task/`（`TaskBackend(ABC)` + `MemoryTaskBackend`） | ✅ 完成 |
-| **P4** | AI Gateway（Token/Cost/Rate Limit/审计统一） | 远期 |
+| **P0** | `llm.py` → `llm/` — client/router 分离，屏蔽 LiteLLM | ✅ |
+| **P1** | `tools.py` → `agent/` — AgentLoop / ToolRegistry | ✅ |
+| **P2** | `infra/skill/` — Skill / SkillRegistry 框架 | ✅ |
+| **P3** | `tasks.py` → `task/` — TaskBackend(ABC) + MemoryTaskBackend | ✅ |
+| **P4** | AI Gateway — 远期 | 远期 |
+| **P5** | `infra/agent/` 扩展 — BaseAgent + Executor + Planner + Memory | ✅ 完成 |
+| **P6** | Skills 落地 — forecast presets 迁移到 `infra.skill.Skill` | ✅ 完成 |
+| **P7** | forecast 瘦身 — `ForecastAgent(BaseAgent)` + tools 换 `infra.agent.ToolRegistry` | ✅ 完成 |
+| **P6** | Skills 落地 — forecast presets 迁移到 `infra.skill.Skill` | ✅ 完成 |
+| **P7** | forecast 瘦身 — `ForecastAgent(BaseAgent)` + tools 换 `infra.agent.ToolRegistry` | ✅ 完成 |
 
-### P0 完成内容
+### 目标：半年后的 infra
 
 ```
-infra/llm.py (208 行)  →  infra/llm/
-├── __init__.py    # 公共 API，向后兼容
-├── client.py      # chat(), stream() — 稳定接口
-└── router.py      # LiteLLM Router — 换 provider 只改这个
+infra/
+├── llm/                        # LLM 抽象层
+│   ├── client.py               # chat(), stream()
+│   └── router.py               # LiteLLM Router
+├── agent/                      # Agent 框架
+│   ├── base.py                 # BaseAgent(ABC)
+│   ├── loop.py                 # AgentLoop（工具调用循环）
+│   ├── tool.py                 # Tool, ToolRegistry
+│   ├── executor.py             # Executor 接口
+│   ├── planner.py              # Planner 接口
+│   └── memory.py               # AgentMemory 接口
+├── skill/                      # Skill 体系（一级概念）
+│   ├── base.py                 # BaseSkill, SkillRegistry
+│   └── loader.py               # Skill 发现/加载
+├── task/                       # 任务管理
+├── auth.py / settings.py / logs.py / utils.py
 ```
-
-向后兼容：`from infra.llm import chat, chat_stream, get_router` 代码零改动。
 
 ### 设计原则
 
 ```python
-# 业务永远不写：
-from litellm import completion
+# ❌ Agent 自己写循环 — forecast/core/agent.py、orchestrator.py
+# ✅ 继承 infra 的 Agent
+from infra.agent import BaseAgent
 
-# 而是：
-from infra.llm import chat
-await chat(messages=[...])
+class ForecastAgent(BaseAgent):
+    skills: list[Skill]
+    tools: ToolRegistry
 
-# LiteLLM → OpenAI SDK → SAP AI Core 换底层只改 router.py，业务无感知。
+# ❌ 每个业务自己注册 Skill
+# ✅ 统一用 infra.skill.SkillRegistry
+from infra.skill import Skill, SkillRegistry
 ```
 
-### P1 完成内容
+### 什么不该做
 
-```
-infra/tools.py (442 行)  →  infra/agent/
-├── __init__.py    # 公共 API: ToolRegistry, AgentLoop, AgentLoopConfig
-├── tool.py        # Tool, ToolRegistry — 工具注册与执行
-└── loop.py        # AgentLoop, AgentLoopConfig — 流式/非流式循环
-infra/tools.py     # → re-export from infra.agent（向后兼容）
-```
+- ❌ AI Gateway 微服务（等 Agent > 5 且有审计需求）
+- ❌ Kafka / Redis Queue / Kubernetes（当前不需要）
+- ❌ 把 auth.py / settings.py 拆成子包（没胖到那个程度）
 
-向后兼容：`from infra.tools import ToolRegistry, AgentLoop` 代码零改动。
-新代码直接：`from infra.agent import ToolRegistry, AgentLoop`。
+### P0-P3 完成内容
 
-### P2 完成内容
+<details>
+<summary>展开</summary>
 
-```
-infra/skill/
-└── __init__.py    # Skill, SkillRegistry — 声明式技能注册与执行
-```
+**P0** — `infra/llm.py` (208 行) → `infra/llm/` (client / router)
 
-- `Skill` dataclass — name + handler + description + params + category + tags + metadata
-- `SkillRegistry` — register / execute / list_skills，支持参数覆盖
-- `registry.execute("skill_name", input, **overrides)` 统一调度接口
-- 输入名自动 normalise（kebab-case / snake_case / 空格 → 统一）
+**P1** — `infra/tools.py` (442 行) → `infra/agent/` (tool / loop)
 
-> forecast skills/presets 尚未迁到 infra.skill — 框架就绪，业务 refactor 可独立进行。
+**P2** — `infra/skill/` — Skill, SkillRegistry
+
+**P3** — `infra/tasks.py` (174 行) → `infra/task/` (types / backend)
+
+</details>
 
 ```
 [x] uv sync --all-packages（136 packages）

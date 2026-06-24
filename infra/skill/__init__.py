@@ -50,6 +50,7 @@ class Skill:
 
     name: str
     handler: Callable[..., Any]
+    aliases: list[str] = field(default_factory=list)
     description: str = ""
     params: dict[str, Any] = field(default_factory=dict)
     category: str = ""
@@ -88,6 +89,7 @@ class SkillRegistry:
 
     def __init__(self) -> None:
         self._skills: dict[str, Skill] = {}
+        self._aliases: dict[str, str] = {}  # alias → name
 
     # -------------------------------------------------------------------
     # Register
@@ -96,6 +98,8 @@ class SkillRegistry:
     def register(self, skill: Skill) -> Skill:
         """注册一个技能 (可重复调用覆盖同名)."""
         self._skills[skill.name] = skill
+        for alias in skill.aliases:
+            self._aliases[self._normalize(alias)] = skill.name
         return skill
 
     def register_all(self, skills: list[Skill]) -> None:
@@ -122,9 +126,15 @@ class SkillRegistry:
             ValueError: 技能不存在
         """
         skill = self._resolve(name)
-        params = {**skill.params, **overrides}
+        merged = {**skill.params, **input}
         try:
-            return skill.handler(input, **params)
+            # 优先传 kwargs（支持 handler(record, window=7) 写法）
+            return skill.handler(merged, **overrides)
+        except TypeError:
+            # handler 不接受 kwargs（如 handler(record)），回退到纯 dict
+            if overrides:
+                merged = {**merged, **overrides}
+            return skill.handler(merged)
         except Exception:
             log.exception(f"Skill {skill.name} failed")
             raise
@@ -164,7 +174,12 @@ class SkillRegistry:
 
     def _resolve(self, name: str) -> Skill:
         normalized = self._normalize(name)
+        # 先查主名，再查别名
         skill = self._skills.get(normalized)
+        if skill is None:
+            real_name = self._aliases.get(normalized)
+            if real_name:
+                skill = self._skills.get(real_name)
         if skill is None:
             available = ", ".join(sorted(self._skills.keys()))
             raise ValueError(f"Unknown skill: {name}. Available: {available}")

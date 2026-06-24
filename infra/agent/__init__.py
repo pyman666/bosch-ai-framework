@@ -1,25 +1,39 @@
-"""Agent 框架 — Tool 注册 + Agent 循环.
+"""Agent 框架.
 
 用法::
 
-    from infra.agent import ToolRegistry, AgentLoop, AgentLoopConfig
+    from infra.agent import BaseAgent, ToolRegistry, AgentLoop
+    from infra.skill import SkillRegistry
 
-    registry = ToolRegistry()
+    class MyAgent(BaseAgent):
+        system_prompt = "..."
+        tools = ToolRegistry()
+        skills = SkillRegistry()
 
-    @registry.register("search", {...})
-    def search(args: dict) -> str:
-        return json.dumps({"results": [...]})
-
-    loop = AgentLoop(registry=registry, system_prompt="...")
-    result = await loop.run(messages=[...])
+    agent = MyAgent()
+    result = await agent.run(messages=[...])
+    async for event in agent.run_stream(messages=[...]):
+        ...
 """
 
+from infra.agent.base import BaseAgent
+from infra.agent.executor import ExecutionResult, Executor
 from infra.agent.loop import AgentLoop, AgentLoopConfig
+from infra.agent.memory import AgentMemory
+from infra.agent.planner import Plan, Planner, Step, StepStatus
 from infra.agent.tool import Tool, ToolHandler, ToolRegistry
 
 __all__ = [
     "AgentLoop",
     "AgentLoopConfig",
+    "AgentMemory",
+    "BaseAgent",
+    "ExecutionResult",
+    "Executor",
+    "Plan",
+    "Planner",
+    "Step",
+    "StepStatus",
     "Tool",
     "ToolHandler",
     "ToolRegistry",

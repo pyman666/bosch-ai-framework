@@ -1,47 +1,23 @@
-"""Agent 工具 — 基于注册表模式的函数调用 (function calling) 工具集合。"""
+"""Agent 工具 — 基于 infra.agent.ToolRegistry 的函数调用工具集合。"""
 
 from __future__ import annotations
 
 import contextvars
 import json
 import logging
-from dataclasses import dataclass
-from typing import Any, Callable
+from typing import Any
+
+from infra.agent import ToolRegistry
 
 from forecast.core.memory import search_memory
 
 log = logging.getLogger(__name__)
 
-
 # ---------------------------------------------------------------------------
-# Tool Registry
+# 全局 ToolRegistry (基于 infra.agent)
 # ---------------------------------------------------------------------------
 
-@dataclass
-class _Tool:
-    name: str
-    definition: dict[str, Any]
-    handler: Callable[..., Any]
-    is_async: bool = False
-
-
-_registry: dict[str, _Tool] = {}
-
-
-def _register(name: str, definition: dict[str, Any], is_async: bool = False):
-    """装饰器：注册工具 handler 并绑定 schema 定义。"""
-
-    def decorator(fn: Callable) -> Callable:
-        _registry[name] = _Tool(name=name, definition=definition, handler=fn, is_async=is_async)
-        return fn
-
-    return decorator
-
-
-# 对外暴露的 schema 列表，由注册表自动生成
-def _build_tool_definitions() -> list[dict[str, Any]]:
-    return [t.definition for t in _registry.values()]
-
+FORECAST_TOOLS = ToolRegistry()
 
 # ---------------------------------------------------------------------------
 # 模块级上下文引用 — 当前输入数据（每次 agent 循环前设置）
@@ -61,18 +37,12 @@ def set_context(session_id: str, inputs: list[dict[str, Any]] | None):
     _current_inputs.set(inputs or [])
 
 
-async def execute_tool(name: str, arguments: dict[str, Any]) -> str:
-    """按名称分发工具调用。返回 JSON 字符串结果。"""
-    tool = _registry.get(name)
-    if not tool:
-        return json.dumps({"error": f"Unknown tool: {name}"})
-    try:
-        if tool.is_async:
-            return await tool.handler(arguments)
-        return tool.handler(arguments)
-    except Exception as e:
-        log.exception(f"Tool {name} failed: {e}")
-        return json.dumps({"error": str(e)})
+# ---------------------------------------------------------------------------
+# Backward compat aliases
+# ---------------------------------------------------------------------------
+
+TOOL_DEFINITIONS = FORECAST_TOOLS.get_definitions
+execute_tool = FORECAST_TOOLS.execute
 
 
 # ---------------------------------------------------------------------------
@@ -140,7 +110,7 @@ def _suggest_params(qtys: list[float], analysis: dict) -> dict:
 # Tool: preview_forecast_data
 # ---------------------------------------------------------------------------
 
-@_register("preview_forecast_data", {
+@FORECAST_TOOLS.register("preview_forecast_data", {
     "type": "function",
     "function": {
         "name": "preview_forecast_data",
@@ -187,7 +157,7 @@ def _preview_data(args: dict) -> str:
 # Tool: list_preset_methods
 # ---------------------------------------------------------------------------
 
-@_register("list_preset_methods", {
+@FORECAST_TOOLS.register("list_preset_methods", {
     "type": "function",
     "function": {
         "name": "list_preset_methods",
@@ -205,7 +175,7 @@ def _list_presets(_args: dict) -> str:
 # Tool: analyze_data_pattern
 # ---------------------------------------------------------------------------
 
-@_register("analyze_data_pattern", {
+@FORECAST_TOOLS.register("analyze_data_pattern", {
     "type": "function",
     "function": {
         "name": "analyze_data_pattern",
@@ -343,7 +313,7 @@ def _analyze_data(_args: dict) -> str:
 # Tool: run_trial_calculation
 # ---------------------------------------------------------------------------
 
-@_register("run_trial_calculation", {
+@FORECAST_TOOLS.register("run_trial_calculation", {
     "type": "function",
     "function": {
         "name": "run_trial_calculation",
@@ -391,7 +361,7 @@ async def _run_trial(args: dict) -> str:
 # Tool: compare_presets
 # ---------------------------------------------------------------------------
 
-@_register("compare_presets", {
+@FORECAST_TOOLS.register("compare_presets", {
     "type": "function",
     "function": {
         "name": "compare_presets",
@@ -477,7 +447,7 @@ def _compare_presets(args: dict) -> str:
 # Tool: suggest_skill_draft
 # ---------------------------------------------------------------------------
 
-@_register("suggest_skill_draft", {
+@FORECAST_TOOLS.register("suggest_skill_draft", {
     "type": "function",
     "function": {
         "name": "suggest_skill_draft",
@@ -520,7 +490,7 @@ def _suggest_skill(args: dict) -> str:
 # Tool: search_memory
 # ---------------------------------------------------------------------------
 
-@_register("search_memory", {
+@FORECAST_TOOLS.register("search_memory", {
     "type": "function",
     "function": {
         "name": "search_memory",
@@ -546,7 +516,7 @@ def _search_memory(args: dict) -> str:
 # Tool: evaluate_forecast_accuracy
 # ---------------------------------------------------------------------------
 
-@_register("evaluate_forecast_accuracy", {
+@FORECAST_TOOLS.register("evaluate_forecast_accuracy", {
     "type": "function",
     "function": {
         "name": "evaluate_forecast_accuracy",
@@ -611,9 +581,3 @@ def _evaluate_accuracy(args: dict) -> str:
     metrics = compute_accuracy(forecast_points, actual_points)
     return json.dumps(metrics.model_dump(), ensure_ascii=False)
 
-
-# ---------------------------------------------------------------------------
-# 自动构建 TOOL_DEFINITIONS
-# ---------------------------------------------------------------------------
-
-TOOL_DEFINITIONS: list[dict[str, Any]] = _build_tool_definitions()
