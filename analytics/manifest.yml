@@ -1,12 +1,12 @@
 ---
 applications:
   - name: analytics
-    path: ./
+    path: ..
     memory: 1G
     disk_quota: 1G
     buildpacks:
       - python_buildpack
-    command: gunicorn analytics.main:app -c gunicorn_config.py -w 4 -b 0.0.0.0:$PORT
+    command: cd analytics && gunicorn analytics.main:app -c gunicorn_config.py -w 4 -b 0.0.0.0:$PORT
 
     health-check-type: http
     health-check-http-endpoint: /health

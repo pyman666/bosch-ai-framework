@@ -2,20 +2,15 @@
 # =============================================================================
 # Bosch AI Platform — Cloud Foundry 部署脚本
 #
-# 每个 agent 是独立的 CF App，一次部署一个或全部。
+# 每个 agent 是独立的 CF App。从 monorepo 根目录推整个仓库，
+# CF buildpack 用根 requirements.txt 安装 infra + agent。
 #
 # 用法:
 #   ./deployment/cf/deploy.sh rag          # 只部署 rag
-#   ./deployment/cf/deploy.sh forecast     # 只部署 forecast
 #   ./deployment/cf/deploy.sh all          # 部署全部
 #
 # 前置:
 #   cf login -a https://api.cf.eu10.hana.ondemand.com -o <org> -s <space>
-#
-# 首次部署前需要创建 service instances（一次性）:
-#   cf create-service xsuaa application <plan> <instance-name> -c xs-security.json
-#   cf create-service redis <plan> <instance-name>
-#   # 等等，见各 agent 的 manifest.yml
 # =============================================================================
 
 set -euo pipefail
@@ -29,8 +24,15 @@ deploy() {
     echo "========================================"
     echo "  Deploying: $name"
     echo "========================================"
-    cd "$BASE_DIR/$name"
-    cf push --strategy rolling
+    cd "$BASE_DIR"
+
+    # CF python buildpack 找根目录 requirements.txt — 复制当前 agent 的上去
+    cp "$name/requirements.txt" ./requirements.txt
+
+    # manifest 里 path: .. 推送整个 monorepo，command: cd <agent> && gunicorn ...
+    cf push -f "$name/manifest.yml" --strategy rolling
+
+    rm -f ./requirements.txt
     echo "  $name deployed."
 }
 

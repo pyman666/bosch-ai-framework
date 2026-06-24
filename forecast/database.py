@@ -14,7 +14,7 @@ log = logging.getLogger(__name__)
 # Database location
 # ---------------------------------------------------------------------------
 
-DB_DIR = Path(__file__).parent.parent / "data"
+DB_DIR = Path(__file__).parent / "data"
 DB_DIR.mkdir(parents=True, exist_ok=True)
 DATABASE_URL = f"sqlite:///{DB_DIR / 'fcst.db'}"
 

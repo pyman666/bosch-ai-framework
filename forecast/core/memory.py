@@ -15,7 +15,7 @@ from typing import Any
 log = logging.getLogger(__name__)
 
 
-MEMORY_DIR = Path(__file__).parent.parent.parent / "memory" / "sessions"
+MEMORY_DIR = Path(__file__).parent.parent / "memory" / "sessions"
 MEMORY_DIR.mkdir(parents=True, exist_ok=True)
 
 SUMMARY_TRIGGER_MESSAGE_COUNT = 8

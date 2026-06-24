@@ -227,7 +227,13 @@ __marimo__/
 # Database files (forecast sqlite)
 *.db
 *.sqlite3
+
+# Forecast runtime directories
 forecast/data/
+forecast/memory/
+
+# CF deploy 临时文件 — deploy.sh 复制 agent/requirements.txt 到根
+/requirements.txt
 
 # IDE
 .idea/
