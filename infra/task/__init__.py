@@ -20,7 +20,7 @@
 """
 
 from infra.task.backend import DEFAULT_BACKEND
-from infra.task.types import PhaseState, TaskID, TaskResult, TaskState, TaskStatus
+from infra.task.types import PhaseState, TaskID, TaskResult, TaskState, TaskStatus  # noqa: F401
 
 
 # ---------------------------------------------------------------------------
