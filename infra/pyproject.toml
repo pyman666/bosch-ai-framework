@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "infra"
 version = "0.1.0"
 description = "LLM 项目公共基础设施包 — LiteLLM Router、Auth、Tasks、Logging"
-requires-python = ">=3.11"
+requires-python = ">=3.11,<3.13"
 dependencies = [
     "fastapi>=0.104.0",
     "pydantic>=2.0",

@@ -25,7 +25,9 @@ deploy() {
     echo "  Deploying: $name"
     echo "========================================"
     cd "$BASE_DIR"
+    printf -- '-e ./infra\n-e ./%s\n' "$name" > ./requirements.txt
     cf push -f "$name/manifest.yml" --strategy rolling
+    rm -f ./requirements.txt
     echo "  $name deployed."
 }
 

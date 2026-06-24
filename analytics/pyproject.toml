@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "analytics"
 version = "0.1.0"
 description = "AI BI / NL2SQL 分析网关"
-requires-python = ">=3.11"
+requires-python = ">=3.11,<3.13"
 dependencies = [
     "infra",
     "fastapi>=0.104.0",

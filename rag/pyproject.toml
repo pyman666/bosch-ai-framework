@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "rag"
 version = "0.1.0"
 description = "RAG 知识库分析 — 检索增强生成 + BPAE 管道"
-requires-python = ">=3.11"
+requires-python = ">=3.11,<3.13"
 dependencies = [
     "infra",
     "fastapi>=0.104.0",

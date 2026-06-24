@@ -1,0 +1,24 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint-and-import:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.11"
+      - run: uv sync --all-packages
+      - run: uv run ruff check .
+      - name: Import check — all agents
+        run: |
+          uv run python -c "from infra.llm import chat, stream; from infra.agent import BaseAgent, ToolRegistry; from infra.skill import Skill; from infra.task import create_task, TaskStatus"
+          uv run python -c "from document.main import app"
+          uv run python -c "from forecast.main import app"
+          uv run python -c "from analytics.main import app"

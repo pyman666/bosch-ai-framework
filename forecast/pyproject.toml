@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "forecast"
 version = "0.1.0"
 description = "预测 AI Agent — Function Generator"
-requires-python = ">=3.11"
+requires-python = ">=3.11,<3.13"
 dependencies = [
     "infra",
     "fastapi>=0.104.0",

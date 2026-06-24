@@ -1,7 +1,0 @@
-# Bosch AI Platform — CF buildpack 依赖
-# 装全部 workspace member，CF 推哪个 agent 都会正确 resolve infra
--e ./infra
--e ./document
--e ./rag
--e ./forecast
--e ./analytics

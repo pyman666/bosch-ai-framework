@@ -88,10 +88,17 @@ bosch-ai-framework/
 - [ ] **服务启动** — import 过了但没实际 `uv run python run.py` 启动看 HTTP 响应
 - [ ] **CF 部署** — manifest.yml 没在 CF 上实际 `cf push` 跑过
 - [ ] **forecast alembic** — `alembic.ini` + `env.py` + `database.py` 三个文件的 DB 路径一致性没逐行核查
+- [ ] **CI 实际跑通** — `.github/workflows/ci.yml` 写了但没在 GitHub 上触发过
 
 ### 清理
-- [ ] **BTP service binding 名称** — rag manifest.yml 里 service instance 名还是 `bapee-*`
+- [ ] **BTP service binding 名称** — rag manifest.yml 里 service instance 名还是 `bapee-*`（对应实际 BTP 实例，暂不改）
 - [ ] **原始目录 `__pycache__`** — 源目录残留 `.pyc` 未清理
+- [ ] **rag/core/ 违规范** — llm.py / ratelimit.py / observability.py 复制了 infra 能力，待迁移
+
+### 已优化
+- [x] **动态 requirements.txt** — deploy.sh 按 agent 生成，不再全量安装
+- [x] **Python 版本上界** — 6 个 pyproject.toml 全部加 `<3.13`
+- [x] **CI workflow** — lint + import check
 
 ---
 
