@@ -10,8 +10,8 @@ from PIL import Image
 from pydantic import BaseModel
 from fastapi.concurrency import run_in_threadpool
 
-from ...settings import DEFAULT_MODEL
-from ...llm import instructor_call
+from infra.settings import DEFAULT_MODEL
+from infra.llm import instructor_call
 
 
 T = TypeVar("T", bound=BaseModel)
