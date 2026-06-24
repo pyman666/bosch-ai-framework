@@ -6,8 +6,8 @@ import logging
 from typing import TypeVar
 from PIL import Image
 from pydantic import BaseModel
-from ...tasks import TaskStatus, set_phase
-from ...utils import exception_detail
+from infra.task import TaskStatus, set_phase
+from infra.utils import exception_detail
 from .vlm import ask_vlm
 from .text import validate_text
 from .ocr import map_ocr
