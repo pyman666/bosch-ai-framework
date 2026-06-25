@@ -16,7 +16,7 @@ from infra.agent import BaseAgent, AgentLoopConfig
 from infra.agent.tool import ToolRegistry
 
 from analytics.core.tools import ALL_TOOLS
-from infra.session import get_session
+from analytics.core.session import get_session
 from analytics.core.mock_bff import handle_mock
 from analytics.core.chart import generate_chart
 
@@ -99,7 +99,7 @@ async def _execute_tool(name: str, args: dict) -> str:
     bff_name, api_path, method = TOOL_ROUTES[name]
 
     try:
-        from infra.http_client import get_client
+        from analytics.core.bff_client import get_client
         client = get_client(bff_name)
         if method == "GET":
             result = await client.get(api_path, params=args)
