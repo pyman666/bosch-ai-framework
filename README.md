@@ -2,6 +2,8 @@
 
 Monorepo — 5 个 Python 包，每个独立部署为一个 Cloud Foundry App。
 
+> **开发指南：** 见 [`CLAUDE.md`](CLAUDE.md)（设计原则、目录规范、常见操作）。
+
 ## 概念
 
 ```

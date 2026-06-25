@@ -203,25 +203,19 @@ infra/
 
 ### 设计原则
 
-```python
-# ❌ Agent 自己写循环 — forecast/core/agent.py、orchestrator.py
-# ✅ 继承 infra 的 Agent
-from infra.agent import BaseAgent
-
-class ForecastAgent(BaseAgent):
-    skills: list[Skill]
-    tools: ToolRegistry
-
-# ❌ 每个业务自己注册 Skill
-# ✅ 统一用 infra.skill.SkillRegistry
-from infra.skill import Skill, SkillRegistry
-```
+1. **infra/agent 分离，package/service 分离。** `infra/` 是 library package（被 pip install），每个 `agent/` 是独立 CF App service。Infra 不感知 agent，agent 只依赖 infra。Agent 之间不能互相 import。
+2. **高内聚低耦合。** Agent `core/` 只放领域逻辑，框架能力都在 infra。新增代码第一反应是"这该放 infra 还是 agent？"——只有一个 agent 用到就放 agent，两个以上就放 infra。
+3. **不要重复造轮子。** 写之前先看 infra 有没有。有但不够用 → 扩充 infra，别 copy-paste。LLM/Auth/Settings/Logging/BTP/HTTP/Session 已经在 infra 了。
+4. **不要过度抽象（YAGNI）。** 只有一个消费者就别往 infra 塞。等第二个 agent 真正需要时再提取。沙箱只有 forecast 用 → 留在 forecast。Rate limiter 只有 rag 用 → 留在 rag。
+5. **优雅 Pythonic。** `| None` 而非 `Optional`，`from __future__ import annotations`，dataclass/Pydantic 做容器，`logging.getLogger(__name__)`，JSON 日志统一用 `infra.observability.JsonFormatter`。
 
 ### 什么不该做
 
 - ❌ AI Gateway 微服务（等 Agent > 5 且有审计需求）
 - ❌ Kafka / Redis Queue / Kubernetes（当前不需要）
 - ❌ 把 auth.py / settings.py 拆成子包（没胖到那个程度）
+- ❌ Agent 之间互相 import（破坏 service 独立性）
+- ❌ 为了"看起来整齐"把单 agent 用的代码抽到 infra
 
 ### P0-P3 完成内容
 
