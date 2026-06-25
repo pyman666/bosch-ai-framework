@@ -16,7 +16,7 @@ from infra.agent import BaseAgent, AgentLoopConfig
 from infra.agent.tool import ToolRegistry
 
 from analytics.core.tools import ALL_TOOLS
-from analytics.core.session import get_session
+from infra.session import get_session
 from analytics.core.mock_bff import handle_mock
 from analytics.core.chart import generate_chart
 

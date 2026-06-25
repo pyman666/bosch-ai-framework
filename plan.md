@@ -100,16 +100,16 @@ bosch-ai-framework/
 - [x] **analytics/core/bff_client.py** — 已移至 `infra/http_client.py`（HttpClient + register_client/get_client）
 - [ ] **rag/core/llm.py** — AI Core 集成（AICoreTokenProvider, AICoreRouter, try_build_aicore_router）应移至 `infra/llm/aicore.py`
 - [ ] **rag/core/ratelimit.py** — 令牌桶限流器通用，但暂仅 rag 使用；若其他 agent 需要则移至 infra
-- [ ] **forecast/core/executor.py** — 通用沙箱部分（validate/compile/execute_python_skill, SandboxError）应提取到 `infra/agent/sandbox.py`
-- [ ] **forecast/core/memory.py** — 通用 JSONL 存储应提取到 `infra/agent/memory.py` 作为 `JSONLMemory(AgentMemory)`
-- [ ] **analytics/core/session.py** — Session/SessionStore 通用，应移至 `infra/session.py`
+- [x] **forecast/core/executor.py** — 通用沙箱已提取到 `infra/agent/sandbox.py`（SandboxError, validate_code, compile_code, prepare_sandbox, execute_sandbox）
+- [ ] **forecast/core/memory.py** — JSONL 存储通用但同步 I/O，`AgentMemory` 接口是 async；需先协调接口再提取
+- [x] **analytics/core/session.py** — 已移至 `infra/session.py`
 
 ### 已优化
 - [x] **动态 requirements.txt** — deploy.sh 按 agent 生成，不再全量安装
 - [x] **Python 版本上界** — 6 个 pyproject.toml 全部加 `<3.13`
 - [x] **CI workflow** — lint + import check
 - [x] **消除 settings/auth/llm/tasks/utils/logs 重复** — 4 个 agent 的 settings/auth/llm/tasks/utils + gunicorn_config 共 14 个文件已删除，统一从 infra 导入
-- [x] **消除 btp/utils/observability/bff_client/rate_limit 重复** — rag/core 的 utils.py/btp.py/observability.py、forecast 的 rate_limit.py、analytics 的 bff_client.py 共 5 个文件已删除或移至 infra
+- [x] **消除 btp/utils/observability/bff_client/rate_limit/sandbox/session 重复** — 8 个 agent 文件已删除或提取到 infra：utils/btp/observability/rate_limit/bff_client/sandbox/session
 - [x] **gunicorn 配置统一** — 4 个 agent 的 gunicorn_config.py/gunicorn_conf.py 已删除，统一用 `infra/logs.py`（manifest 中 `-c ../infra/logs.py`）
 - [x] **settings.yaml 统一** — 根目录一份 → `infra/settings.yaml`，所有 agent 共享
 - [x] **AUTH_MODE 默认 none** — CI / import 测试不崩，生产设 `AUTH_MODE=basic` 开启鉴权
@@ -146,8 +146,8 @@ bosch-ai-framework/
 | **P9** | `llm.chat(app=...)` — API 加 app 上下文，未来 Cost/Audit 零改动 | ✅ |
 | **P10** | `core/` 目录规范 — 规则已定，存量违规待清理 | ✅ |
 | **P11** | infra 扩展 — btp.py / observability.py / http_client.py 从 agent 提取到 infra | ✅ 完成 |
-| **P12** | 沙箱提取 — forecast executor 通用部分 → infra/agent/sandbox.py | 待做 |
-| **P13** | 存储提取 — JSONLMemory + SessionStore → infra | 待做 |
+| **P12** | 沙箱提取 — forecast executor 通用部分 → infra/agent/sandbox.py | ✅ |
+| **P13** | 存储提取 — SessionStore → infra/session.py ✅，JSONLMemory 待 async 协调 | 部分完成 |
 
 ### 目标：半年后的 infra
 
@@ -197,12 +197,10 @@ infra/
 |------|------|--------|
 | `rag/core/llm.py` | AI Core 集成 (AICoreTokenProvider, AICoreRouter, try_build_aicore_router) | → `infra/llm/aicore.py` |
 | `rag/core/ratelimit.py` | Token bucket rate limiter（通用后端，暂仅 rag 用） | → `infra/` 或保留 |
-| `forecast/core/executor.py` | Python 沙箱 (validate/compile/execute, SandboxError) | → `infra/agent/sandbox.py` |
-| `forecast/core/memory.py` | JSONL 存储实现 | → `infra/agent/memory.py` 作为 JSONLMemory |
-| `analytics/core/session.py` | Session/SessionStore（会话管理通用） | → `infra/session.py` |
+| `forecast/core/memory.py` | JSONL 存储（同步 I/O vs AgentMemory 异步接口） | 先统一接口再提取 |
 | `rag/core/auth.py` | PyJWT 手动验签 XSUAA (vs infra/auth.py 用 sap-xssec SDK) | 统一为一个实现 |
 
-> 已清理 5 项：`rag/core/utils.py`（→ infra.utils）、`rag/core/btp.py`（→ infra/btp.py）、`rag/core/observability.py`（→ infra/observability.py）、`forecast/core/rate_limit.py`（POC 已删，is_heavy_skill → heavy_skill.py）、`analytics/core/bff_client.py`（→ infra/http_client.py）。
+> 已清理 7 项：`rag/core/utils.py`（→ infra.utils）、`rag/core/btp.py`（→ infra/btp.py）、`rag/core/observability.py`（→ infra/observability.py）、`forecast/core/rate_limit.py`（POC 已删）、`analytics/core/bff_client.py`（→ infra/http_client.py）、`forecast/core/executor.py`（沙箱 → infra/agent/sandbox.py）、`analytics/core/session.py`（→ infra/session.py）。
 
 ### 设计原则
 
