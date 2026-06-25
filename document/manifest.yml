@@ -6,7 +6,7 @@ applications:
     disk_quota: 2G
     buildpacks:
       - python_buildpack
-    command: cd document && gunicorn document.main:app -c gunicorn_conf.py -w 4 -b 0.0.0.0:$PORT
+    command: cd document && gunicorn document.main:app -c ../infra/logs.py -w 4 -b 0.0.0.0:$PORT
 
     health-check-type: http
     health-check-http-endpoint: /healthz

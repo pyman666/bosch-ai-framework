@@ -1,10 +1,11 @@
-"""Gunicorn 配置模板 — JSON logging + QueueHandler + 生命周期 hooks.
+"""Gunicorn 配置 — JSON logging + QueueHandler + 生命周期 hooks，所有 agent 共用。
 
 用法::
 
-    # gunicorn -c infra/gunicorn_config.py myapp.main:app
-
-复制此文件到项目根目录并按需修改 (如调整 workers 数、绑定端口等).
+    cd forecast && gunicorn forecast.main:app -c ../infra/logs.py
+    cd analytics && gunicorn analytics.main:app -c ../infra/logs.py
+    cd document && gunicorn document.main:app -c ../infra/logs.py
+    cd rag && gunicorn rag.main:app -c ../infra/logs.py
 """
 
 from __future__ import annotations
@@ -29,13 +30,13 @@ os.environ.setdefault("WEB_CONCURRENCY", str(workers))
 
 # ---- Performance & Stability ----
 timeout = int(os.environ.get("GUNICORN_TIMEOUT", "120"))  # LLM calls can be slow
-graceful_timeout = 30  # wait for in-flight requests on shutdown
-keepalive = 5  # seconds to wait for next request on keep-alive connection
+graceful_timeout = int(os.environ.get("GUNICORN_GRACEFUL_TIMEOUT", "30"))
+keepalive = int(os.environ.get("GUNICORN_KEEPALIVE", "5"))
 
 # ---- Worker Health ----
-max_requests = 1000  # restart worker after N requests (prevent memory leaks)
+max_requests = int(os.environ.get("GUNICORN_MAX_REQUESTS", "1000"))
 max_requests_jitter = 50  # randomize to avoid thundering herd
-preload_app = True  # 多 worker 共享初始化
+preload_app = os.environ.get("GUNICORN_PRELOAD_APP", "true").lower() == "true"
 
 # ---- Logging ----
 accesslog = "-"

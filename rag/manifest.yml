@@ -9,7 +9,7 @@ applications:
     disk_quota: 3G
     buildpacks:
       - python_buildpack
-    command: cd rag && gunicorn rag.main:app -c gunicorn_conf.py
+    command: cd rag && gunicorn rag.main:app -c ../infra/logs.py
 
     # ---- Health check -----------------------------------------------------
     health-check-type: http
@@ -17,6 +17,10 @@ applications:
     health-check-invocation-timeout: 5
     timeout: 180
 
+    env:
+      GUNICORN_TIMEOUT: 180          # SSE streaming can be slow
+      GUNICORN_GRACEFUL_TIMEOUT: 25  # slightly less than BTP app-stop-timeout (30s)
+      GUNICORN_KEEPALIVE: 75         # align with nginx/ALB
     services:
       - rb-bpae_application-log_lite_0
       # 凭证 / AI Core / XSUAA / Redis 服务绑定.
