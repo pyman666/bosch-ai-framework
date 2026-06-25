@@ -6,7 +6,7 @@
 bosch-ai-framework/          # monorepo，uv workspace
 ├── infra/                   # 共享 AI 框架（library package）
 │   ├── llm/                 #   LLM 抽象（chat/stream/router）
-│   ├── agent/               #   Agent 框架（BaseAgent/Tool/AgentLoop/Planner/Memory）
+│   ├── agent/               #   Agent 框架（BaseAgent/Tool/AgentLoop）
 │   ├── skill/               #   Skill 注册表
 │   ├── task/                #   任务管理（create/get/set_phase）
 │   ├── auth.py              #   HTTP Basic + XSUAA 鉴权
@@ -51,6 +51,8 @@ bosch-ai-framework/          # monorepo，uv workspace
 | `btp.py` | rag, infra/settings.py |
 | `observability.py` | rag, infra/logs.py |
 | `utils.py` | document, rag |
+
+> 已删除的 YAGNI：`agent/planner.py`、`agent/memory.py`、`agent/executor.py`（纯 ABC，零实现，零引用）。
 
 ---
 
@@ -133,7 +135,6 @@ uv run ruff check . && uv run ruff format .  # lint + format
 ## 待办
 
 - [ ] **rag/core/llm.py** — AI Core 集成（AICoreTokenProvider, AICoreRouter）应移至 `infra/llm/aicore.py`。当前仅 rag 用，等第二个 agent 接入 AI Core 时提取。
-- [ ] **forecast/core/memory.py** — JSONL 存储实现是同步 I/O，`infra/agent/memory.py` 的 `AgentMemory` 接口是 async。先统一接口再提取。
 - [ ] **BTP service binding 名称** — rag manifest.yml 里 service instance 名还是 `bapee-*`（对应实际 BTP 实例，暂不改）。
 - [ ] **CI 实际跑通** — `.github/workflows/ci.yml` 没在 GitHub 上触发过。
 - [ ] **CF 部署验证** — manifest.yml 没实际 `cf push` 跑过。
