@@ -3,46 +3,9 @@ from pathlib import Path
 import yaml
 from dotenv import load_dotenv
 
-from infra.btp import find_redis_url, get_secret
+from infra.btp import find_redis_url
 
 load_dotenv()
-
-
-def _require_secret(name: str) -> str:
-    """读必填凭证, 缺失就用清晰的错误信息当场炸而不是 ``NoneType.encode``.
-
-    解析顺序由 :func:`bapee.core.btp.get_secret` 决定: env var (本地 ``.env`` /
-    ``cf set-env``) → BTP user-provided service binding 的 ``credentials.<name>``.
-    都没有就 fail-fast.
-
-    部署排查友好: 看到 ``RuntimeError: required secret not set: 'BOT_KEY'``
-    就知道该去 ``.env`` 加 / 创个 user-provided service 把 ``BOT_KEY`` 塞 binding
-    里 (``cf cups bapee-bot-creds -p '{"BOT_KEY": "...", "BOT_SECRET": "..."}'``).
-    """
-    val = get_secret(name)
-    if val is None or val == "":
-        raise RuntimeError(
-            f"required secret not set: {name!r}. "
-            f"在 .env / cf set-env / user-provided service binding 里设上."
-        )
-    return val
-
-
-def get_basic_auth_credentials() -> tuple[bytes, bytes]:
-    """读 Basic Auth 共享凭证 (``BOT_KEY`` / ``BOT_SECRET``), 缺失 fail-fast.
-
-    懒加载: 仅在 :mod:`bapee.core.auth` 决定走 Basic Auth 路径时调一次. XSUAA-only
-    部署 (绑了 ``bapee-xsuaa`` 不绑 ``bapee-bot-creds``) 不会触发, 这俩凭证
-    可以完全不设, 应用照起.
-
-    历史: 之前这俩在 module top-level 立即 ``_require_secret``, 切到 XSUAA-only
-    时也炸, 跟实际使用路径不匹配. 现在按 "auth strategy 决定后再 require"
-    的顺序, 行为跟语义对齐.
-    """
-    return (
-        _require_secret("BOT_KEY").encode("utf-8"),
-        _require_secret("BOT_SECRET").encode("utf-8"),
-    )
 
 
 # ---------------------------------------------------------------------------

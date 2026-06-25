@@ -42,7 +42,7 @@ from typing import Any, AsyncIterator
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import PlainTextResponse, StreamingResponse
 
-from ..core.auth import _bot_auth
+from infra.auth import require_auth
 from ..settings import STREAM_MAX_DURATION_SEC
 from .bpae_pipeline import ask_bot, ask_bot_text, chat_bot, chat_bot_text
 from .schemas import AskQuery, ChatQuery
@@ -51,7 +51,7 @@ from .schemas import AskQuery, ChatQuery
 logger = logging.getLogger(__name__)
 
 
-router = APIRouter(dependencies=[Depends(_bot_auth)])
+router = APIRouter(dependencies=[Depends(require_auth)])
 
 
 # SSE 末尾哨兵, 兼容 OpenAI / 大多数前端 SSE 库的"流结束"约定.

@@ -30,7 +30,6 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from rag.chatbot import bpae_pipeline
 from rag.chatbot.routes import router as bot_router
-from rag.core import auth as _auth_module
 from infra.observability import RequestIDMiddleware, get_request_id
 from rag.core.ratelimit import RateLimitMiddleware, build_rate_limiter
 from infra.utils import exception_detail
@@ -59,13 +58,6 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         # 退出码 / 健康检查失败信号.
         logger.exception("startup: pipeline build failed, aborting")
         raise
-
-    # 决定 auth strategy (XSUAA JWT / Basic Auth) + warmup. 模块级 ``_bot_auth``
-    # dispatcher 现在指向 :data:`bapee.core.auth._active_dep`, 这一步才把后者填上.
-    # XSUAA 路径下顺手预热 JWKS, 把首请求 50-200ms 网络延迟挪到启动期; Basic
-    # Auth 路径就是单纯写 ``_active_dep``. 失败只 warn 不中断启动, 真等首请求
-    # 时验签路径自己会重试 — 启动失败比"首请求慢一点"更糟.
-    await _auth_module.install()
 
     logger.info("startup: pipeline ready, accepting traffic")
     try:
