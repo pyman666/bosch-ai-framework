@@ -72,6 +72,9 @@ bosch-ai-framework/
 │   ├── settings.py             # YAML + env 配置
 │   ├── settings.yaml           # 模型配置（所有 agent 共享）
 │   ├── logs.py                 # Gunicorn JSON 日志（所有 agent 共用 -c ../infra/logs.py）
+│   ├── btp.py                  # BTP/CF VCAP_SERVICES 解析
+│   ├── observability.py        # JsonFormatter + RequestIDMiddleware
+│   ├── http_client.py          # 通用异步 HTTP 客户端
 │   └── utils.py
 ├── document/                   # 文档解析（原 apdfi/idoc）
 │   ├── main.py                 # FastAPI 入口

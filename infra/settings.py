@@ -18,6 +18,8 @@ import json
 import logging
 import os
 from pathlib import Path
+
+from infra.btp import find_service_binding
 from typing import Any
 
 import yaml
@@ -64,17 +66,10 @@ def _load_xsuaa_credentials() -> dict | None:
         2. ``XSUAA_SERVICE_KEY`` env 里整段 service key JSON
         3. ``XSUAA_*`` 4 件套 env
     """
-    vcap = os.environ.get("VCAP_SERVICES")
-    if vcap:
-        try:
-            data = json.loads(vcap)
-            for inst in data.get("xsuaa", []):
-                creds = inst.get("credentials")
-                if creds:
-                    log.info("[auth] XSUAA 凭据: VCAP_SERVICES.xsuaa[0]")
-                    return creds
-        except Exception as e:
-            log.warning(f"[auth] VCAP_SERVICES 解析失败 (跳过): {e}")
+    creds = find_service_binding("xsuaa")
+    if creds:
+        log.info("[auth] XSUAA 凭据: VCAP_SERVICES.xsuaa[0]")
+        return creds
     raw = os.environ.get("XSUAA_SERVICE_KEY")
     if raw:
         try:

@@ -21,7 +21,6 @@ from sqlalchemy.orm import Session
 from infra.auth import require_auth
 from forecast.database import get_db, init_db, SessionLocal
 from forecast.core.skill_manager import seed_preset_skills
-from forecast.core.rate_limit import RateLimitMiddleware
 from forecast.routes import chat, skill, forecast, assistant
 
 
@@ -67,8 +66,6 @@ app = FastAPI(
         "email": "hn_1992@163.com",
     },
 )
-
-app.add_middleware(RateLimitMiddleware)
 
 app.add_middleware(
     CORSMiddleware,

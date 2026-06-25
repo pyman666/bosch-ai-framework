@@ -44,7 +44,7 @@ import httpx
 import litellm
 from litellm import Router
 
-from .btp import find_service_binding
+from infra.btp import find_service_binding
 
 
 logger = logging.getLogger(__name__)

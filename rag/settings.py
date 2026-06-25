@@ -3,7 +3,7 @@ from pathlib import Path
 import yaml
 from dotenv import load_dotenv
 
-from .core.btp import find_redis_url, get_secret
+from infra.btp import find_redis_url, get_secret
 
 load_dotenv()
 

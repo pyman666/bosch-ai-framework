@@ -58,7 +58,7 @@ import jwt
 from fastapi import HTTPException, Request, status
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 
-from .btp import find_service_binding, is_running_on_btp
+from infra.btp import find_service_binding, is_running_on_btp
 from ..settings import get_basic_auth_credentials
 
 

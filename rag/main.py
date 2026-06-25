@@ -31,9 +31,9 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from rag.chatbot import bpae_pipeline
 from rag.chatbot.routes import router as bot_router
 from rag.core import auth as _auth_module
-from rag.core.observability import RequestIDMiddleware, get_request_id
+from infra.observability import RequestIDMiddleware, get_request_id
 from rag.core.ratelimit import RateLimitMiddleware, build_rate_limiter
-from rag.core.utils import exception_detail
+from infra.utils import exception_detail
 from rag.settings import (
     RATE_LIMIT_BURST,
     RATE_LIMIT_PER_MIN,

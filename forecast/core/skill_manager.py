@@ -127,7 +127,7 @@ def create_skill(db: Session, payload: SkillCreate) -> Skill:
             tags = ["business", "user"]
 
     # 重计算 Python skill 自动打 heavy 标签
-    from forecast.core.rate_limit import is_heavy_skill
+    from forecast.core.heavy_skill import is_heavy_skill
     if is_heavy_skill(skill.skill_type.value, preset_name=skill.preset_name, python_code=skill.python_code):
         if "heavy" not in tags:
             tags.append("heavy")
@@ -374,7 +374,7 @@ def seed_preset_skills(db: Session) -> int:
             {"name": "forecast", "type": "date_series", "description": "预测发货量"},
         ])
         # 预设自动打标：category 直接作为 tag（algorithm / business）
-        from forecast.core.rate_limit import is_heavy_skill
+        from forecast.core.heavy_skill import is_heavy_skill
 
         tags = ["preset", info.get("category", "algorithm")]
 

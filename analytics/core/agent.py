@@ -99,8 +99,8 @@ async def _execute_tool(name: str, args: dict) -> str:
     bff_name, api_path, method = TOOL_ROUTES[name]
 
     try:
-        from analytics.core.bff_client import get_bff
-        client = get_bff(bff_name)
+        from infra.http_client import get_client
+        client = get_client(bff_name)
         if method == "GET":
             result = await client.get(api_path, params=args)
         else:

@@ -44,22 +44,7 @@ errorlog = "-"
 loglevel = "info"
 
 
-class JsonFormatter(logging.Formatter):
-    """JSON 格式日志, 适合 ELK / Cloud Logging."""
-
-    def format(self, record):
-        log_record = {
-            "timestamp": self.formatTime(record),
-            "level": record.levelname,
-            "logger": record.name,
-            "message": record.getMessage(),
-        }
-        # Include exception info if present
-        if record.exc_info:
-            log_record["exception"] = self.formatException(record.exc_info)
-        if hasattr(record, "request_id"):
-            log_record["request_id"] = record.request_id
-        return json.dumps(log_record, ensure_ascii=False)
+from infra.observability import JsonFormatter  # noqa: E402
 
 
 sync_handler = logging.StreamHandler(sys.stdout)

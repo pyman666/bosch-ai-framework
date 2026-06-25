@@ -1,4 +1,4 @@
-"""BFF HTTP 客户端."""
+"""通用异步 HTTP 客户端 + 注册表."""
 
 import logging
 
@@ -7,8 +7,8 @@ import httpx
 log = logging.getLogger(__name__)
 
 
-class BFFClient:
-    """通用 BFF HTTP 客户端."""
+class HttpClient:
+    """通用 HTTP 客户端，包装 ``httpx.AsyncClient``."""
 
     def __init__(self, base_url: str, auth_token: str | None = None):
         self.base_url = base_url.rstrip("/")
@@ -31,7 +31,7 @@ class BFFClient:
         """GET 请求."""
         client = await self._get_client()
         url = path if path.startswith("/") else f"/{path}"
-        log.info(f"BFF GET {self.base_url}{url} params={params}")
+        log.info(f"HTTP GET {self.base_url}{url} params={params}")
         response = await client.get(url, params=params)
         response.raise_for_status()
         return response.json()
@@ -40,7 +40,7 @@ class BFFClient:
         """POST 请求."""
         client = await self._get_client()
         url = path if path.startswith("/") else f"/{path}"
-        log.info(f"BFF POST {self.base_url}{url} data={json_data}")
+        log.info(f"HTTP POST {self.base_url}{url} data={json_data}")
         response = await client.post(url, json=json_data)
         response.raise_for_status()
         return response.json()
@@ -52,18 +52,18 @@ class BFFClient:
             self._client = None
 
 
-# BFF 注册表（后续从配置加载）
-_bff_registry: dict[str, BFFClient] = {}
+# 客户端注册表
+_clients: dict[str, HttpClient] = {}
 
 
-def register_bff(name: str, base_url: str, auth_token: str | None = None):
-    """注册 BFF."""
-    _bff_registry[name] = BFFClient(base_url, auth_token)
-    log.info(f"Registered BFF: {name} -> {base_url}")
+def register_client(name: str, base_url: str, auth_token: str | None = None):
+    """注册一个 HTTP 客户端."""
+    _clients[name] = HttpClient(base_url, auth_token)
+    log.info(f"Registered HTTP client: {name} -> {base_url}")
 
 
-def get_bff(name: str) -> BFFClient:
-    """获取 BFF 客户端."""
-    if name not in _bff_registry:
-        raise ValueError(f"BFF not found: {name}")
-    return _bff_registry[name]
+def get_client(name: str) -> HttpClient:
+    """获取已注册的 HTTP 客户端."""
+    if name not in _clients:
+        raise ValueError(f"HTTP client not found: {name}")
+    return _clients[name]

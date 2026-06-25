@@ -350,7 +350,7 @@ def build_skill_md(skill_data: dict, logic_doc: str) -> str:
     preset_name = skill_data.get("preset_name", "")
 
     # 检测是否为重计算 skill
-    from forecast.core.rate_limit import is_heavy_skill
+    from forecast.core.heavy_skill import is_heavy_skill
     is_heavy = is_heavy_skill(skill_type, preset_name=preset_name, python_code=py_code)
 
     md = f"""# {name}

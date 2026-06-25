@@ -47,7 +47,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 
-from .observability import get_request_id
+from infra.observability import get_request_id
 
 
 logger = logging.getLogger(__name__)
