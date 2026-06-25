@@ -103,3 +103,14 @@ uv run ruff check . && uv run ruff format .  # lint + format
 | 领域 Executor | 通用 Auth / Settings / Logging |
 
 > 存量违规：`rag/core/llm.py`（AI Core 应在 infra/llm/aicore.py）、`rag/core/ratelimit.py`（等第二个用户）、`forecast/core/memory.py`（async 接口不匹配）。
+
+---
+
+## 待办
+
+- [ ] **rag/core/llm.py** — AI Core 集成 → `infra/llm/aicore.py`
+- [ ] **rag/core/ratelimit.py** — 等第二个 agent 需要限流时提取到 infra
+- [ ] **forecast/core/memory.py** — `AgentMemory` 接口是 async，forecast 是同步 I/O，先统一
+- [ ] **BTP service binding 名称** — rag manifest 里还是 `bapee-*`（对应实际 BTP 实例，暂不改）
+- [ ] **CI 实际跑通** — `.github/workflows/ci.yml` 没在 GitHub 上触发过
+- [ ] **CF 部署验证** — manifest.yml 没实际 `cf push` 跑过
