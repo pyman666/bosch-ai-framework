@@ -115,5 +115,4 @@ uv run ruff check . && uv run ruff format .  # lint + format
 - [x] **rag/settings.py + rag/settings.yaml** — 改用 infra.settings，YAML 已删除（-94 行）
 - [x] **infra.llm** — 4 agents 都用：document (aclient/router/instructor), forecast (chat), analytics (chat/get_router), rag (get_router)
 - [x] **infra.settings** — 4 agents 都间接使用（3 个通过 infra.llm 自动加载，rag 显式调用 load_config）
-- [ ] **BTP service binding 名称** — rag manifest 里还是 `bapee-*`（对应实际 BTP 实例，暂不改）。
 - [ ] **CI / CF 部署验证** — 没实际跑过。

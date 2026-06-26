@@ -23,9 +23,7 @@ applications:
       GUNICORN_KEEPALIVE: 75         # align with nginx/ALB
     services:
       - rb-bpae_application-log_lite_0
-      # 凭证 / AI Core / XSUAA / Redis 服务绑定.
-      # BTP 实际 service instance 名保持 bapee-* (未改):
-      # - bapee-bot-creds
-      # - bapee-aicore
-      # - bapee-xsuaa
-      # - bapee-redis
+      # 凭证 / XSUAA / Redis 服务绑定（AI Core 已移除）:
+      # - rag-bot-creds
+      # - rag-xsuaa
+      # - rag-redis
