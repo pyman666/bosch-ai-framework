@@ -155,29 +155,9 @@ SYSTEM_PROMPT: str = """\
 DEFAULT_MODEL: str = _cfg["default_model"]
 ROUTER_KWARGS: dict = _cfg.get("router", {})
 
+from infra.settings import expand_model_list
 
-def _expand_model_list(providers: list[dict]) -> list[dict]:
-    """把 provider 维度配置展开成 LiteLLM 的 model_list (key × model 笛卡尔积)."""
-    out = []
-    for p in providers:
-        prefix = p["provider"]
-        api_base = p.get("api_base")
-        for env_var in p.get("keys", []):
-            for m in p.get("models", []):
-                spec = {"name": m} if isinstance(m, str) else dict(m)
-                name = spec.pop("name")
-                params = {
-                    "model": f"{prefix}/{name}",
-                    "api_key": f"os.environ/{env_var}",
-                    **spec,
-                }
-                if api_base:
-                    params["api_base"] = api_base
-                out.append({"model_name": name, "litellm_params": params})
-    return out
-
-
-MODEL_LIST: list[dict] = _expand_model_list(_cfg["providers"])
+MODEL_LIST: list[dict] = expand_model_list(_cfg["providers"])
 
 
 # ---------------------------------------------------------------------------

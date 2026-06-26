@@ -142,7 +142,7 @@ def load_config(
 
     DEFAULT_MODEL = default_model if default_model is not None else _cfg["default_model"]
     ROUTER_KWARGS = router_kwargs if router_kwargs is not None else _cfg.get("router", {})
-    MODEL_LIST = _expand_model_list(_cfg["providers"])
+    MODEL_LIST = expand_model_list(_cfg["providers"])
 
     # 同时配置 llm 模块
     from infra.llm import _configure as _configure_llm
@@ -156,7 +156,7 @@ def load_config(
     return _cfg
 
 
-def _expand_model_list(providers: list[dict]) -> list[dict]:
+def expand_model_list(providers: list[dict]) -> list[dict]:
     """把 provider 维度配置展开成 LiteLLM 的 ``model_list``.
 
     展开规则:
