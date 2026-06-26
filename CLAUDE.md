@@ -10,13 +10,13 @@ bosch-ai-framework/          # monorepo，uv workspace
 │   ├── skill/               #   Skill 注册表 — 1 agent + infra/agent 用
 │   ├── task/                #   任务管理 — 2 agents 用
 │   ├── auth.py              #   HTTP Basic + XSUAA — 4 agents 用
-│   ├── settings.py + .yaml  #   YAML + env 配置 — 3 agents 用（rag 有独立 settings）
+│   ├── settings.py + .yaml  #   YAML + env 配置 — 所有 agent 共享
 │   ├── logs.py              #   Gunicorn JSON 日志 — 4 agents 用
 │   ├── btp.py               #   BTP VCAP_SERVICES 解析 — 1 agent + infra/settings 用
 │   ├── observability.py     #   JsonFormatter + RequestIDMiddleware — 1 agent + infra/logs 用
 │   └── utils.py             #   exception_detail + utcnow — 3 agents 用
 ├── document/                # 文档解析 agent
-├── rag/                     # RAG 知识库 agent（独立 settings.py, llm.py, ratelimit.py）
+├── rag/                     # RAG 知识库 agent（ratelimit.py 领域特有）
 ├── forecast/                # 预测 agent（沙箱、memory、orchestrator 均领域逻辑）
 ├── analytics/               # BI 分析 agent（session、http_client、chart 均领域逻辑）
 └── deployment/cf/           # CF 部署脚本
@@ -111,6 +111,7 @@ uv run ruff check . && uv run ruff format .  # lint + format
 
 ## 待办
 
-- [ ] **rag/core/llm.py** — AI Core 集成应移至 `infra/llm/aicore.py`。当前仅 rag 用，等第二个 agent 接入 AI Core 时提取。
+- [x] **rag/core/llm.py** — 已删除，AI Core 移除，rag 统一用 infra.llm
+- [x] **rag/settings.py** — 改用 infra.settings 的 MODEL_LIST/DEFAULT_MODEL/ROUTER_KWARGS
 - [ ] **BTP service binding 名称** — rag manifest 里还是 `bapee-*`（对应实际 BTP 实例，暂不改）。
 - [ ] **CI / CF 部署验证** — 没实际跑过。

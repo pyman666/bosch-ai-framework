@@ -47,6 +47,10 @@ logger = logging.getLogger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     """应用生命周期 hook — 启动期同步构 pipeline, 失败就让 worker 退出."""
+    # 加载 infra LLM 配置 (模型列表, Router 参数, 可选 Redis backend)
+    from infra.settings import load_config
+    load_config(redis_url=REDIS_URL)
+
     logger.info("startup: building BPAE pipeline...")
     try:
         # 走 ``bpae_pipeline.init`` (而不是 ``from ... import init``) 这样测试

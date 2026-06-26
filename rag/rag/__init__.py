@@ -10,10 +10,10 @@ LiteLLM 调用 这套 RAG pipeline 提炼成业务无关的库, 通过 :class:`H
 .. code-block:: python
 
     # myproject/pipeline.py — 你的 binding 层
+    from infra.llm import get_router
     from rag.rag import HybridPipeline, HybridPipelineConfig, PromptTemplates
-    from rag.core.llm import build_router    # 或自己用 LiteLLM Router(...) 构造
 
-    router = build_router(model_list=[...])
+    router = get_router()
 
     _pipeline = HybridPipeline(HybridPipelineConfig(
         docs_dir=Path("kb/"),
@@ -49,7 +49,7 @@ LiteLLM 调用 这套 RAG pipeline 提炼成业务无关的库, 通过 :class:`H
 业务定制只能通过 config 字段, 不能写死. 这条边界让
 ``git filter-repo --path bapee/rag`` 可以一键拆成独立包.
 
-特别提醒: LLM Router 由调用方构造 (e.g. 用 ``bapee.core.llm.build_router``)
+特别提醒: LLM Router 统一走 ``infra.llm.get_router()``
 后通过 ``HybridPipelineConfig.router`` 注入, ``rag`` 只消费
 ``router.acompletion(...)`` 接口, 不持有构造责任.
 """

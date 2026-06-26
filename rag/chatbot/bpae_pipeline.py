@@ -18,24 +18,18 @@ from __future__ import annotations
 import logging
 from typing import Any, AsyncIterator
 
-from ..core.llm import build_router, try_build_aicore_router, with_redis_backend
 from ..rag import (
     HybridPipeline,
     HybridPipelineConfig,
     PromptTemplates,
 )
 from ..settings import (
-    AI_CORE_DEPLOYMENTS,
-    AI_CORE_RESOURCE_GROUP,
     DEFAULT_MODEL,
     HYBRID_CANDIDATE_POOL,
     HYBRID_DOCS_DIR,
     HYBRID_ENABLE_RERANK,
     HYBRID_OUTLINE_PATH,
     HYBRID_TOP_K,
-    MODEL_LIST,
-    REDIS_URL,
-    ROUTER_KWARGS,
     SYSTEM_PROMPT,
 )
 
@@ -98,15 +92,6 @@ _BPAE_TEMPLATES = PromptTemplates(
    报错诊断中的角色见各组开头说明; 诊断时**以 `code` 类为准**, `doc` / `meta` 仅在客户
    明确问运营操作 / 元事实时使用.
 
-{docs}
-
-注意:
-
-1. 基于上面的片段事实作答, 资料里没有这条具体说明时按 system prompt 的"老实
-   说不知道 + 引导联系运营"方式回答, **不要编造**.
-2. **不要在回答里引用知识库的内部标题或来源标签** (如
-   `[boct (code) > 7. 所有可能的 processRemark]` 这种), 客户看不懂. 需要让客户
-   知道"依据哪条规则"时, 用业务化的话复述 (例: '按 BYD 的退货数量校验规则…').
 3. 严格执行 system prompt 里的"客户向措辞 / 三态分流 / 末尾下一步"硬性要求.
 """,
     no_user_question_fallback=(
@@ -161,30 +146,10 @@ _pipeline: HybridPipeline | None = None
 
 
 def _build_router_auto():
-    """选 LLM router 实现: BTP AI Core 绑了且 settings 有 deployment 配 → 用 AI Core; 否则 legacy.
-
-    自动切换的好处: 同一份代码本地 dev (走 settings.yaml 的 providers + 直
-    连 OpenAI / Gemini 等) 和 BTP 生产 (走 AI Core service binding) 都能跑,
-    切环境只看 VCAP_SERVICES 和 settings.yaml 改, 不动业务代码.
-
-    判断顺序见 :func:`bapee.core.llm.try_build_aicore_router`; 它返 None 就 fallback.
-
-    Redis 开关: 启动时 ``REDIS_URL`` (env var 或 BTP service binding) 若非空,
-    通过 :func:`bapee.core.llm.with_redis_backend` 注入到 ``router_kwargs``, LiteLLM
-    Router 自动用 Redis 共享 cooldown / 用量状态 (跨 worker × instance 一致);
-    没 Redis 时这一步等于 noop, Router 走默认 in-memory 状态.
-    """
-    router_kwargs = with_redis_backend(ROUTER_KWARGS, redis_url=REDIS_URL)
-    aicore_router = try_build_aicore_router(
-        AI_CORE_DEPLOYMENTS,
-        resource_group=AI_CORE_RESOURCE_GROUP,
-        **router_kwargs,
-    )
-    if aicore_router is not None:
-        logger.info("llm router: AI Core (BTP)")
-        return aicore_router
-    logger.info("llm router: legacy (settings.yaml providers)")
-    return build_router(MODEL_LIST, **router_kwargs)
+    """构造 LLM Router — 统一走 infra.llm."""
+    from infra.llm import get_router
+    logger.info("llm router: infra.llm")
+    return get_router()
 
 
 def init() -> HybridPipeline:
@@ -215,48 +180,52 @@ def init() -> HybridPipeline:
             templates=_BPAE_TEMPLATES,
         )
     )
-    return _pipeline
-
-
-def _get_pipeline() -> HybridPipeline:
-    """运行时取 pipeline; 没初始化就明确报错 (而不是 ``AttributeError: None``)."""
-    if _pipeline is None:
-        raise RuntimeError(
-            "bpae pipeline not initialized — call bpae_pipeline.init() at "
-            "startup (FastAPI lifespan does this automatically)."
-        )
+    logger.info(
+        "pipeline constructed",
+        extra={
+            "docs_dir": str(HYBRID_DOCS_DIR),
+            "top_k": HYBRID_TOP_K,
+            "candidate_pool": HYBRID_CANDIDATE_POOL,
+            "default_model": DEFAULT_MODEL,
+        },
+    )
     return _pipeline
 
 
 def is_ready() -> bool:
-    """给 /healthz 之类用 — 不抛异常版本的就绪检查."""
+    """pipeline 是否已构造 — 给 readiness probe 用."""
     return _pipeline is not None
 
 
 # ---------------------------------------------------------------------------
-# 公开 API — 保持跟旧 hybrid.py 同名同形, 让 routes.py 零改动
+# 公开 API — 薄 wrapper, 把 BPAE 的 settings 跟 pipeline 缝在一起
 # ---------------------------------------------------------------------------
 
 async def ask_bot(
     route_url: str,
     payload: dict[str, Any],
-    user_question: str | None = None,
+    user_question: str = "",
     *,
     model: str | None = None,
 ) -> AsyncIterator[str]:
-    """单轮入口 — 流式. 名字保留 ``ask_bot`` 是为兼容旧调用方."""
-    async for c in _get_pipeline().ask(route_url, payload, user_question, model=model):
-        yield c
+    pipeline = _pipeline
+    if pipeline is None:
+        raise RuntimeError("pipeline not initialized — call init() first")
+    async for chunk in pipeline.ask(route_url, payload, user_question, model=model):
+        yield chunk
 
 
 async def ask_bot_text(
     route_url: str,
     payload: dict[str, Any],
-    user_question: str | None = None,
+    user_question: str = "",
     *,
     model: str | None = None,
 ) -> str:
-    return await _get_pipeline().ask_text(route_url, payload, user_question, model=model)
+    pipeline = _pipeline
+    if pipeline is None:
+        raise RuntimeError("pipeline not initialized — call init() first")
+    return await pipeline.ask_text(route_url, payload, user_question, model=model)
 
 
 async def chat_bot(
@@ -266,9 +235,11 @@ async def chat_bot(
     *,
     model: str | None = None,
 ) -> AsyncIterator[str]:
-    """多轮入口 — 流式. 名字保留 ``chat_bot`` 是为兼容旧调用方."""
-    async for c in _get_pipeline().chat(route_url, payload, history, model=model):
-        yield c
+    pipeline = _pipeline
+    if pipeline is None:
+        raise RuntimeError("pipeline not initialized — call init() first")
+    async for chunk in pipeline.chat(route_url, payload, history, model=model):
+        yield chunk
 
 
 async def chat_bot_text(
@@ -278,4 +249,7 @@ async def chat_bot_text(
     *,
     model: str | None = None,
 ) -> str:
-    return await _get_pipeline().chat_text(route_url, payload, history, model=model)
+    pipeline = _pipeline
+    if pipeline is None:
+        raise RuntimeError("pipeline not initialized — call init() first")
+    return await pipeline.chat_text(route_url, payload, history, model=model)

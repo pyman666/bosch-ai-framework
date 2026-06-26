@@ -2,10 +2,10 @@
 
 业务侧的典型用法:
 
+    from infra.llm import get_router
     from rag.rag import HybridPipeline, HybridPipelineConfig, PromptTemplates
-    from rag.core.llm import build_router  # 或自己构造任意 LiteLLM-compatible Router
 
-    router = build_router(model_list=[...], routing_strategy="usage-based-routing-v2")
+    router = get_router()
 
     config = HybridPipelineConfig(
         docs_dir=Path("docs"),

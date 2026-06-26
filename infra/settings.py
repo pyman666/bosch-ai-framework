@@ -121,6 +121,7 @@ def load_config(
     *,
     default_model: str | None = None,
     router_kwargs: dict | None = None,
+    redis_url: str | None = None,
 ) -> dict:
     """加载/重载模型配置.
 
@@ -142,6 +143,8 @@ def load_config(
 
     DEFAULT_MODEL = default_model if default_model is not None else _cfg["default_model"]
     ROUTER_KWARGS = router_kwargs if router_kwargs is not None else _cfg.get("router", {})
+    if redis_url:
+        ROUTER_KWARGS = dict(ROUTER_KWARGS, redis_url=redis_url)
     MODEL_LIST = expand_model_list(_cfg["providers"])
 
     # 同时配置 llm 模块
